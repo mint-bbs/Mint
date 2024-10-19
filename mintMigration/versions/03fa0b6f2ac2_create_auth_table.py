@@ -22,7 +22,7 @@ def upgrade() -> None:
     op.create_table(
         "auth",
         sa.Column("id", sa.String(length=10), primary_key=True),
-        sa.Column("account_id", sa.String(), unique=True),
+        sa.Column("account_id", sa.String(length=16), unique=True),
         sa.Column(
             "created_at",
             sa.DateTime(timezone=True),

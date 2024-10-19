@@ -4,8 +4,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import PlainTextResponse
 
 from ...services.board import BoardService
-from ...services.thread import ThreadService
 from ...services.response import ResponseService
+from ...services.thread import ThreadService
 
 router = APIRouter()
 
@@ -13,7 +13,7 @@ weekdays = ["月", "火", "水", "木", "金", "土", "日"]
 
 
 @router.get(
-    "/{boardName:str}/dat/{threadId:int}",
+    "/{boardName:str}/dat/{threadId:int}.dat",
     response_class=PlainTextResponse,
 )
 async def dat(boardName: str, threadId: int):
@@ -33,7 +33,7 @@ async def dat(boardName: str, threadId: int):
     responses = await ResponseService.getResponses(board.id, threadId)
     for response in responses:
         threadDat.append(
-            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>{response.title}"
+            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>"
         )
     return PlainTextResponse(
         "\n".join(threadDat).encode("shift_jis"),

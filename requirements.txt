@@ -5,3 +5,5 @@ alembic
 psycopg2
 python-socketio
 bcrypt
+httpx
+passlib

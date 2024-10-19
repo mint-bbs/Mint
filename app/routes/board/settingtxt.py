@@ -17,8 +17,7 @@ async def settingTXT(boardName: str):
     board = await BoardService.getBoard(boardName)
     if not board:
         raise HTTPException(status_code=404)
-    setting = f"""
-BBS_TITLE={board.name}
+    setting = f"""BBS_TITLE={board.name}
 BBS_TITLE_PICTURE=
 BBS_TITLE_COLOR=#000000
 BBS_TITLE_LINK=

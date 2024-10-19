@@ -2,12 +2,12 @@ import os
 
 import bcrypt
 import dotenv
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from .....objects import Board
 from .....services.admin import AdminPanelSessionService
-from .....services.database import DatabaseService
 from .....services.board import BoardService
+from .....services.database import DatabaseService
 
 dotenv.load_dotenv()
 

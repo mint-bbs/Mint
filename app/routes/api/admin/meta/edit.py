@@ -2,9 +2,10 @@ import asyncpg
 import dotenv
 from fastapi import APIRouter, Depends
 
-from .....objects import ChangeableMetaData, CaptchaType
+from .....objects import CaptchaType, ChangeableMetaData, MetaData
 from .....services.admin import AdminPanelSessionService
 from .....services.database import DatabaseService
+from .....services.meta import MetaDataService
 
 dotenv.load_dotenv()
 
@@ -12,11 +13,11 @@ router = APIRouter()
 
 
 @router.patch("/api/admin/meta/edit")
-async def createBoard(
+async def editMeta(
     meta: ChangeableMetaData,
     session: dict = Depends(AdminPanelSessionService.sessionCheck),
 ):
-    """板を作成します。"""
+    """メタデータを編集します。"""
 
     data = meta.model_dump()
 
@@ -27,6 +28,7 @@ async def createBoard(
     for key, value in data.items():
         if key == "id":
             continue
+        print(key, value)
         if value is None:
             set_clauses.append(f"{key} = DEFAULT")
         else:
@@ -41,7 +43,9 @@ async def createBoard(
     UPDATE meta
     SET {', '.join(set_clauses)}
     WHERE id = $1
+    RETURNING *
     """
 
-    await DatabaseService.pool.execute(query, *values)
+    row = await DatabaseService.pool.fetchrow(query, *values)
+    MetaDataService.metadata = MetaData.model_validate(dict(row))
     return {"detail": "success"}

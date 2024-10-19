@@ -2,8 +2,8 @@ from fastapi import APIRouter, HTTPException
 
 from ....objects import Board
 from ....services.board import BoardService
-from ....services.thread import ThreadService
 from ....services.response import ResponseService
+from ....services.thread import ThreadService
 
 router = APIRouter()
 

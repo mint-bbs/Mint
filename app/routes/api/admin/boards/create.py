@@ -19,6 +19,8 @@ async def createBoard(
     board: Board, session: dict = Depends(AdminPanelSessionService.sessionCheck)
 ):
     """板を作成します。"""
+    if board.id == "auth":
+        raise HTTPException(status_code=500, detail="That board ID is not available.")
     if await BoardService.getBoard(board.id):
         raise HTTPException(status_code=500, detail="Board ID already used")
     await DatabaseService.pool.execute(

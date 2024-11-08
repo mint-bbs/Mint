@@ -4,13 +4,79 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{board.name}}</title>
+
+    <meta property="og:title" content="{{board.name}}" />
+    <meta property="og:description" content="{{board.head | striptag}}" />
+    <meta property="og:url" content="{{request.url}}" />
+    <meta
+      property="og:image"
+      content="{{request.base_url}}static/img/mint.png"
+    />
+    <meta property="og:type" content="article" />
+
+    <script src="/static/js/board.js"></script>
+
     <link rel="stylesheet" href="/static/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/css/board.css" />
   </head>
   <body>
-    <section class="section">
+    <section class="section" data-theme="light">
       <div class="container">
-        <h1 class="title">Hello World</h1>
-        <p class="subtitle">My first website with <strong>Bulma</strong>!</p>
+        <div class="center">
+          <img
+            src="{{request.base_url}}static/img/mint.png"
+            alt="mint bbs"
+            class="logo"
+          />
+        </div>
+
+        <div class="table">
+          <div class="td">
+            <h1 class="title">{{ board.name }}</h1>
+            <p class="head">{{ board.head | safe }}</p>
+          </div>
+          <div class="td" style="text-align: center">
+            <a href="/">■トップページ■</a>
+          </div>
+        </div>
+
+        <div class="table">
+          <div class="td" id="threadsList"></div>
+        </div>
+
+        <div class="table">
+          <div class="td">
+            <h6 class="title is-6" style="padding: 0">新規スレッド作成</h6>
+            <input
+              placeholder="スレタイ"
+              type="text"
+              name="subject"
+              size="40"
+              class="threadTitleForm"
+            /><input type="submit" value="新規スレッド作成" />
+            <div class="formInput">
+              名前：<input
+                placeholder="なまえ#とりっぷ"
+                type="text"
+                name="FROM"
+                size="19"
+              />
+              認証キー：<input
+                placeholder="(省略可)"
+                type="text"
+                name="mail"
+                size="19"
+              /><br />
+            </div>
+            <textarea
+              rows="5"
+              cols="60"
+              name="MESSAGE"
+              class="contentForm"
+            ></textarea>
+            <input type="hidden" id="formBoard" name="bbs" value="" />
+          </div>
+        </div>
       </div>
     </section>
   </body>

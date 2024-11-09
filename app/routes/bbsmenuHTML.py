@@ -18,14 +18,11 @@ async def index(request: Request):
     for row in rows:
         boards.append(Board.model_validate(dict(row)))
 
-    url = f"{request.url.scheme}://{request.url.hostname}{f':{request.url.port}' if request.url.port is not None else ''}"
-
     return templates.TemplateResponse(
         request=request,
         name="bbsmenu.html",
         context={
             "request": request,
-            "url": url,
             "boards": boards,
             "metadata": MetaDataService.metadata,
         },

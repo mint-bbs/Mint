@@ -22,4 +22,4 @@ async def threadsList(boardName: str, threadId: int):
         raise HTTPException(status_code=404)
     responses = await ResponseService.getResponses(board.id, threadId)
     responses.insert(0, thread)
-    return
+    return responses

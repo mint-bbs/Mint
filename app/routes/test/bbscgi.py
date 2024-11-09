@@ -47,7 +47,7 @@ async def bbscgi(
 
     if not (
         (request.method.lower() != "post")
-        or (submit.encode("utf-8").decode("utf-8") != "書き込む")
+        or ("書き込む" in submit.encode("utf-8").decode("utf-8"))
         or (not bbs)
         or (not MESSAGE)
         or ((not subject) and (not key))

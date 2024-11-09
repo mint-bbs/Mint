@@ -3,6 +3,10 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
+def convertDatetime(dt: datetime) -> str:
+    return dt.isoformat()
+
+
 class Thread(BaseModel):
     id: int
     board: str
@@ -12,3 +16,6 @@ class Thread(BaseModel):
     created_at: datetime
     content: str
     count: int = 1
+
+    class Config:
+        json_encoders = {datetime: convertDatetime}

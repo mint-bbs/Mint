@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.get("/api/boards/{boardName:str}/threads")
-async def threadsList(boardName):
+async def threadsList(boardName: str):
     """
     スレッドの一覧をJSONで返します。
     """

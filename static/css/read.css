@@ -1,0 +1,43 @@
+html,
+body {
+  color: #222222;
+  background-color: #efefef;
+}
+
+.controller {
+  display: flex;
+  border-bottom: solid 1px;
+}
+
+.controller a {
+  padding: 2px;
+}
+
+.thread-title {
+  color: #ff0000;
+  font-size: larger;
+  font-weight: normal;
+}
+
+.content {
+  color: black;
+  padding-left: 30px;
+}
+
+.responses {
+  padding-bottom: 20px;
+}
+
+.size {
+  color: red;
+  font-weight: bold;
+}
+
+.info {
+  border: solid 1px;
+  border-left: solid 0px;
+  border-right: solid 0px;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}

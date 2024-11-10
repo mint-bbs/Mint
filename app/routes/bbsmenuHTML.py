@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
-from ..objects import Jinja2SJISTemplates, Board
+from ..objects import Board, Jinja2SJISTemplates
 from ..services.database import DatabaseService
 from ..services.meta import MetaDataService
 

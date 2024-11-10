@@ -1,6 +1,7 @@
-import random
-import string
+import asyncio
+import secrets
 from typing import List, Optional
+from datetime import datetime
 
 from ..objects import Response, Thread
 from .database import DatabaseService
@@ -19,7 +20,7 @@ class ThreadService:
             Optional[Thread]: スレッド一覧
         """
         row = await DatabaseService.pool.fetchrow(
-            "SELECT * FROM threads WHERE board = $1 AND id = $2", board, threadId
+            "SELECT * FROM threads WHERE board = $1 AND timestamp = $2", board, threadId
         )
         if not row:
             return None
@@ -36,7 +37,7 @@ class ThreadService:
             Optional[List[Thread]]: スレッド一覧
         """
         rows = await DatabaseService.pool.fetch(
-            "SELECT * FROM threads WHERE board = $1 ORDER BY created_at DESC", board
+            "SELECT * FROM threads WHERE board = $1 ORDER BY last_wrote_at DESC", board
         )
         if not rows:
             return []
@@ -47,7 +48,7 @@ class ThreadService:
 
     @classmethod
     def randomID(cls, n: int = 9) -> str:
-        return "".join(random.choices(string.ascii_letters + string.digits, k=n))
+        return secrets.token_hex(n)
 
     @classmethod
     async def write(
@@ -55,12 +56,21 @@ class ThreadService:
     ) -> Response:
         row = await DatabaseService.pool.fetchrow(
             "INSERT INTO responses (id, thread_id, board, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            cls.randomID(10),
+            cls.randomID(5),
             threadId,
             board,
             name,
             account_id,
             content,
         )
-        print(row)
+
+        asyncio.create_task(
+            DatabaseService.pool.execute(
+                "UPDATE ONLY threads SET last_wrote_at = $3 WHERE timestamp = $1 AND board = $2",
+                threadId,
+                board,
+                datetime.now(),
+            )
+        )
+
         return Response.model_validate(dict(row))

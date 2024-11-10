@@ -17,7 +17,7 @@ class ResponseService:
             Optional[List[Response]]: レス一覧
         """
         rows = await DatabaseService.pool.fetch(
-            "SELECT * FROM responses WHERE board = $1 AND thread_id = $2 ORDER BY created_at DESC",
+            "SELECT * FROM responses WHERE board = $1 AND thread_id = $2 ORDER BY created_at ASC",
             board,
             thread_id,
         )

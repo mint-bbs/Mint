@@ -8,7 +8,8 @@ def convertDatetime(dt: datetime) -> str:
 
 
 class Thread(BaseModel):
-    id: int
+    id: str
+    timestamp: int
     board: str
     title: str
     name: str

@@ -14,6 +14,7 @@
     />
     <meta property="og:type" content="article" />
 
+    <script src="/static/js/socket.io.min.js"></script>
     <script src="/static/js/bulma-toast.min.js"></script>
     <script src="/static/js/read.js"></script>
 
@@ -48,6 +49,13 @@
 
         <div class="info">
           <div id="ikioi">勢い: -1</div>
+        </div>
+
+        <div class="controller">
+          <a href="/{{board.id}}">■掲示板に戻る■</a>
+          <a onclick="">全部</a>
+          <a onclick="">1-</a>
+          <a onclick="">最新50</a>
         </div>
 
         <div class="write">

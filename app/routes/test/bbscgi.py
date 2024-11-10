@@ -3,7 +3,7 @@ import re
 import urllib
 from datetime import datetime
 
-from fastapi import APIRouter, Body, Cookie, Form, Request
+from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
 from ...objects import Jinja2SJISTemplates, Response
@@ -11,6 +11,7 @@ from ...services.auth import AuthService
 from ...services.board import BoardService
 from ...services.thread import ThreadService
 from ...services.trip import TripService
+from ...sioHandler import sio
 
 router = APIRouter()
 templates = Jinja2SJISTemplates(directory="pages")
@@ -18,9 +19,7 @@ templates = Jinja2SJISTemplates(directory="pages")
 
 @router.get("/test/bbs.cgi", response_class=HTMLResponse, include_in_schema=False)
 @router.post("/test/bbs.cgi", response_class=HTMLResponse)
-async def bbscgi(
-    request: Request,
-):
+async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
     data = await request.body()
     postDataDict = {}
     for pair in data.decode().split("&"):
@@ -218,7 +217,16 @@ async def bbscgi(
             },
             headers={"content-type": "text/html; charset=shift_jis"},
         )
-        templateResponse.set_cookie("2ch_X", chCookie)
+
+        templateResponse.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+
+        backgroundTasks.add_task(
+            sio.emit,
+            "thread_posted",
+            newThread.model_dump(),
+            room=f"board_{bbs}",
+        )
+
         return templateResponse
     else:
         response: Response = await ThreadService.write(
@@ -237,5 +245,14 @@ async def bbscgi(
             },
             headers={"content-type": "text/html; charset=shift_jis"},
         )
-        templateResponse.set_cookie("2ch_X", chCookie)
+
+        templateResponse.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+
+        backgroundTasks.add_task(
+            sio.emit,
+            "thread_writed",
+            response.model_dump(),
+            room=f"board_{bbs}_thread_{response.thread_id}",
+        )
+
         return templateResponse

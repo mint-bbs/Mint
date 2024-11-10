@@ -41,3 +41,7 @@ body {
   justify-content: center;
   padding: 10px;
 }
+
+.thread {
+  padding-top: 5px;
+}

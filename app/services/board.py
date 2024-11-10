@@ -1,3 +1,4 @@
+import secrets
 from typing import Optional
 
 from ..objects import Board, Thread
@@ -15,6 +16,10 @@ class BoardService:
         return Board.model_validate(dict(row))
 
     @classmethod
+    def randomID(cls, n: int = 9) -> str:
+        return secrets.token_hex(n)
+
+    @classmethod
     async def write(
         cls,
         board: str,
@@ -25,8 +30,18 @@ class BoardService:
         account_id: str,
         content: str
     ) -> Thread:
+        check = await DatabaseService.pool.fetchrow(
+            "SELECT * FROM threads WHERE timestamp = $1 AND board = $2",
+            timestamp,
+            board,
+        )
+
+        if check:
+            timestamp += 1
+
         row = await DatabaseService.pool.fetchrow(
-            "INSERT INTO threads (id, board, title, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            "INSERT INTO threads (id, timestamp, board, title, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+            cls.randomID(5),
             timestamp,
             board,
             title,

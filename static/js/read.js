@@ -1,4 +1,4 @@
-const threads = [];
+const cachedResponses = [];
 
 let board = location.pathname.split("/")[3];
 let key = location.pathname.split("/")[4];
@@ -34,17 +34,18 @@ async function refreshThread(responses) {
   var returnDate = new Date();
 
   responses.forEach((response) => {
-    threads.push(response);
+    count += 1;
+    cachedResponses.push(response);
 
     const node = document.createElement("div");
     node.classList.add("thread");
 
     const date = new Date(response.created_at);
-    if (response.count == 1) {
+    if (count == 1) {
       document.querySelector(".thread-title").textContent = response.title;
       returnDate = date;
     }
-    node.innerHTML = `${response.count}：<span style="color: green;"><b>${
+    node.innerHTML = `${count}：<span style="color: green;"><b>${
       response.name
     }</b></span>：${formatDate(date)} ID: ${response.account_id}`;
 
@@ -64,6 +65,87 @@ async function refreshThread(responses) {
   return returnDate;
 }
 
+async function post(e) {
+  e.preventDefault();
+  const submit = document.getElementById("submit");
+
+  submit.disabled = true;
+  submit.classList.add("is-loading");
+
+  const formData = new FormData(e.target);
+  body = {
+    name: formData.get("name"),
+    authKey: formData.get("authKey"),
+    content: formData.get("content"),
+  };
+  response = await fetch(`/api/boards/${board}/threads/${key}`, {
+    method: "put",
+    headers: {
+      "content-type": "application/json",
+      Cookie: `2ch_X=${getCookie("2ch_X")}`,
+    },
+    body: JSON.stringify(body),
+  });
+  try {
+    jsonData = await response.json();
+    console.log(jsonData);
+
+    submit.classList.remove("is-loading");
+
+    if (response.status == 200) {
+      document.cookie = response.headers.cookie;
+
+      bulmaToast.toast({
+        message: "スレッドに書き込みました。",
+        type: "is-success",
+        duration: 5000,
+        dismissible: false,
+        pauseOnHover: true,
+        position: "top-left",
+        closeOnClick: false,
+        extraClasses: "popup",
+        animate: { in: "fadeIn", out: "fadeOut" },
+      });
+      setTimeout(function () {
+        e.target.querySelector("input[name=name]").value = "";
+        e.target.querySelector("input[name=authKey]").value = "";
+        e.target.querySelector("textarea[name=content]").value = "";
+        submit.disabled = false;
+      }, 1000);
+    } else {
+      bulmaToast.toast({
+        message: jsonData.detail,
+        type: "is-danger",
+        duration: 5000,
+        dismissible: true,
+        pauseOnHover: true,
+        position: "top-left",
+        closeOnClick: true,
+        extraClasses: "popup",
+        animate: { in: "fadeIn", out: "fadeOut" },
+      });
+      setTimeout(function () {
+        submit.disabled = false;
+      }, 1000);
+    }
+  } catch {
+    bulmaToast.toast({
+      message: "不明なエラーが発生しました。",
+      type: "is-danger",
+      duration: 5000,
+      dismissible: true,
+      pauseOnHover: true,
+      position: "top-left",
+      closeOnClick: true,
+      extraClasses: "popup",
+      animate: { in: "fadeIn", out: "fadeOut" },
+    });
+    setTimeout(function () {
+      submit.disabled = false;
+    }, 1000);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
   const progressBar = document.getElementById("progress");
 
@@ -80,4 +162,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   nowTime = (nowDate.getTime() - date.getTime()) / 1000 / 60;
   ikioi = (responses.length / nowTime) * 60 * 24;
   document.getElementById("ikioi").textContent = `勢い: ${ikioi}`;
+
+  const postForm = document.getElementById("postForm");
+  postForm.addEventListener("submit", post);
 });

@@ -1,19 +1,20 @@
-import re
 import html
+import re
 
-from fastapi import APIRouter, HTTPException, Request, Cookie, Response
+from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
+from .... import objects
+from ....services.auth import AuthService
 from ....services.board import BoardService
 from ....services.thread import ThreadService
-from ....services.auth import AuthService
 from ....services.trip import TripService
+from ....sioHandler import sio
 
 router = APIRouter()
 
 
 class ResponseWriteBody(BaseModel):
-    title: str
     name: str
     authKey: str
     content: str
@@ -23,6 +24,7 @@ class ResponseWriteBody(BaseModel):
 async def postThread(
     request: Request,
     response: Response,
+    backgroundTasks: BackgroundTasks,
     boardName: str,
     threadId: int,
     model: ResponseWriteBody,
@@ -75,19 +77,22 @@ async def postThread(
             status_code=413,
             detail=f"本文が指定されたサイズより長いです。短くしてください。({len(model.content)} > {board.message_count})",
         )
-    model.title = html.escape(model.title)
-    if len(model.title) > board.subject_count:
-        raise HTTPException(
-            status_code=413,
-            detail=f"スレッドのタイトルが指定されたサイズより長いです。短くしてください。({len(model.title)} > {board.subject_count})",
-        )
 
-    newThread = await ThreadService.write(
+    newResponse: objects.Response = await ThreadService.write(
         board.id,
-        thread.id,
+        thread.timestamp,
         name=model.name,
         account_id=authUser["account_id"],
         content=model.content,
     )
-    response.set_cookie("2ch_X", chCookie)
-    return {"detail": "スレッドに書き込みました！", "thread": newThread}
+
+    response.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+
+    backgroundTasks.add_task(
+        sio.emit,
+        "thread_writed",
+        newResponse.model_dump(),
+        room=f"board_{board.id}_thread_{newResponse.thread_id}",
+    )
+
+    return {"detail": "スレッドに書き込みました！", "thread": newResponse}

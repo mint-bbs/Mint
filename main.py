@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.services.database import DatabaseService
 from app.services.meta import MetaDataService
+from app.sioHandler import sio
 
 # This is Mint version! Don't change this!
 __mintName__ = "Mint"
@@ -38,7 +39,7 @@ fastapi = FastAPI(
     lifespan=lifespan,
     default_response_class=ORJSONResponse,
 )
-sio = socketio.AsyncServer()
+
 app = socketio.ASGIApp(sio, fastapi)
 
 fastapi.mount("/static", StaticFiles(directory="static"), name="static")

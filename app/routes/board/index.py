@@ -1,8 +1,8 @@
-import io
 import html
+import io
 from html.parser import HTMLParser
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
@@ -44,6 +44,8 @@ templates.env.filters["striptag"] = stripTag
 @router.get("/{boardName:str}/", response_class=HTMLResponse, include_in_schema=False)
 async def boardIndex(request: Request, boardName: str):
     board: Board = await BoardService.getBoard(boardName)
+    if not board:
+        raise HTTPException(status_code=404)
     return templates.TemplateResponse(
         request=request,
         name="board.html",

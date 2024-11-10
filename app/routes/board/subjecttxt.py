@@ -21,7 +21,7 @@ async def subjectTXT(boardName: str):
     threads = await ThreadService.getThreads(board.id)
     subject = []
     for thread in threads:
-        subject.append(f"{thread.id}.dat<>{thread.title} ({thread.count})")
+        subject.append(f"{thread.timestamp}.dat<>{thread.title} ({thread.count})")
     return PlainTextResponse(
         "\n".join(subject).encode("shift_jis"),
         200,

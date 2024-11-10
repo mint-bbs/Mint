@@ -1,14 +1,15 @@
-import re
 import html
+import re
 from datetime import datetime
 
-from fastapi import APIRouter, HTTPException, Request, Cookie, Response
+from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
+from ....services.auth import AuthService
 from ....services.board import BoardService
 from ....services.thread import ThreadService
-from ....services.auth import AuthService
 from ....services.trip import TripService
+from ....sioHandler import sio
 
 router = APIRouter()
 
@@ -24,6 +25,7 @@ class ThreadPostBody(BaseModel):
 async def postThread(
     request: Request,
     response: Response,
+    backgroundTasks: BackgroundTasks,
     boardName: str,
     model: ThreadPostBody,
     chCookie: str = Cookie(None, alias="2ch_X"),
@@ -87,5 +89,14 @@ async def postThread(
         account_id=authUser["account_id"],
         content=model.content,
     )
-    response.set_cookie("2ch_X", chCookie)
+
+    response.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+
+    backgroundTasks.add_task(
+        sio.emit,
+        "thread_posted",
+        newThread.model_dump(),
+        room=f"board_{board.id}",
+    )
+
     return {"detail": "スレッドを建てました！", "thread": newThread}

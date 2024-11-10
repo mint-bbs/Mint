@@ -1,3 +1,4 @@
+import secrets
 import random
 import string
 from typing import Optional, Tuple
@@ -65,8 +66,8 @@ class AuthService:
                 if not jsonData["success"]:
                     return None
 
-        code = cls.randomID(10)
-        account_id = cls.randomID(9)
+        code = secrets.token_hex(10)
+        account_id = cls.randomID(4)
 
         await DatabaseService.pool.execute(
             """

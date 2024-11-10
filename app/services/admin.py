@@ -1,5 +1,4 @@
-import random
-import string
+import secrets
 from datetime import datetime, timedelta, timezone
 
 from fastapi import Header, HTTPException
@@ -19,11 +18,11 @@ class AdminPanelSessionService:
 
     @classmethod
     def randomID(cls, n: int = 10) -> str:
-        return "".join(random.choices(string.ascii_letters + string.digits, k=n))
+        return secrets.token_hex(n)
 
     @classmethod
     async def login(cls, username: str, session_duration: int = 3600) -> str:
-        sessionId = cls.randomID(10)
+        sessionId = cls.randomID(5)
         expire_at = datetime.now(timezone.utc) + timedelta(seconds=session_duration)
         await DatabaseService.pool.execute(
             """

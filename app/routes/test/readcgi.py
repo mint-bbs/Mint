@@ -1,15 +1,15 @@
-import io
 import html
+import io
 from html.parser import HTMLParser
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 from ...objects import Board, Thread
 from ...services.board import BoardService
-from ...services.thread import ThreadService
 from ...services.meta import MetaDataService
+from ...services.thread import ThreadService
 
 router = APIRouter()
 templates = Jinja2Templates(directory="pages")
@@ -49,7 +49,11 @@ templates.env.filters["striptag"] = stripTag
 )
 async def viewThread(request: Request, boardName: str, threadId: int):
     board: Board = await BoardService.getBoard(boardName)
+    if not board:
+        raise HTTPException(status_code=404)
     thread: Thread = await ThreadService.getThread(board.id, threadId)
+    if not thread:
+        raise HTTPException(status_code=404)
     return templates.TemplateResponse(
         request=request,
         name="thread.html",

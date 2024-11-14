@@ -2,7 +2,7 @@ import os
 
 import bcrypt
 import dotenv
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Response
 from pydantic import BaseModel, Field
 
 from ....services.admin import AdminPanelSessionService
@@ -20,7 +20,7 @@ class AdminUserRequestModel(BaseModel):
 
 
 @router.post("/api/admin/request")
-async def requestAdminAccount(model: AdminUserRequestModel):
+async def requestAdminAccount(response: Response, model: AdminUserRequestModel):
     users = await DatabaseService.pool.fetch("SELECT * FROM admin_panel_users")
     if users:
         raise HTTPException(status_code=403)
@@ -35,6 +35,8 @@ async def requestAdminAccount(model: AdminUserRequestModel):
         8,
     )
     session_id = await AdminPanelSessionService.login(model.username)
+
+    response.set_cookie("session", session_id, max_age=60 * 60 * 60 * 24 * 365 * 10)
     return {
         "detail": "success",
         "session": session_id,

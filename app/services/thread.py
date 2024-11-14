@@ -1,3 +1,4 @@
+import orjson
 import asyncio
 import secrets
 from typing import List, Optional
@@ -27,24 +28,36 @@ class ThreadService:
         return Thread.model_validate(dict(row))
 
     @classmethod
-    async def getThreads(cls, board: str) -> Optional[List[Thread]]:
+    async def getThreads(
+        cls, board: str, *, offset: int = 0, limit: int = 50, json: bool = False
+    ) -> Optional[List[Thread] | str]:
         """スレッドの一覧を取得します。
 
         Args:
             board (str): 板のID。
+            offset (int): オフセット。
+            limit (int): 何スレまで取得するか。
+            json (bool): スレッドをJSONとして取得するかどうか。
 
         Returns:
             Optional[List[Thread]]: スレッド一覧
         """
         rows = await DatabaseService.pool.fetch(
-            "SELECT * FROM threads WHERE board = $1 ORDER BY last_wrote_at DESC", board
+            "SELECT * FROM threads WHERE board = $1 ORDER BY last_wrote_at DESC LIMIT $2 OFFSET $3",
+            board,
+            limit,
+            offset,
         )
         if not rows:
             return []
         threads = []
         for row in rows:
-            threads.append(Thread.model_validate(dict(row)))
-        return threads
+            threads.append(
+                Thread.model_validate(dict(row))
+                if not json
+                else Thread.model_validate(dict(row)).model_dump()
+            )
+        return threads if not json else orjson.dumps(threads).decode()
 
     @classmethod
     def randomID(cls, n: int = 9) -> str:
@@ -52,7 +65,14 @@ class ThreadService:
 
     @classmethod
     async def write(
-        cls, board: str, threadId: int, *, name: str, account_id: str, content: str
+        cls,
+        board: str,
+        threadId: int,
+        *,
+        name: str,
+        account_id: str,
+        content: str,
+        count: int
     ) -> Response:
         row = await DatabaseService.pool.fetchrow(
             "INSERT INTO responses (id, thread_id, board, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
@@ -66,10 +86,11 @@ class ThreadService:
 
         asyncio.create_task(
             DatabaseService.pool.execute(
-                "UPDATE ONLY threads SET last_wrote_at = $3 WHERE timestamp = $1 AND board = $2",
+                "UPDATE ONLY threads SET last_wrote_at = $3, count = $4 WHERE timestamp = $1 AND board = $2",
                 threadId,
                 board,
                 datetime.now(),
+                count,
             )
         )
 

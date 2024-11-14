@@ -7,16 +7,21 @@ from app.services.database import DatabaseService
 sio = socketio.AsyncServer(async_mode="asgi")
 
 global_count = 0
+max_global_count = 0
 room_count: dict[int] = defaultdict(lambda: 0)
+room_max_count: dict[int] = defaultdict(lambda: 0)
 
 
 @sio.event
 async def connect(sid, environ, auth):
     global global_count
+    global max_global_count
     global_count += 1
+    if global_count > max_global_count:
+        max_global_count = global_count
     await sio.emit(
         "global_count_event",
-        {"message": "client connected", "global_count": global_count},
+        {"count": global_count, "max": max_global_count},
     )
     print(f"connected", sid)
     print("connected member count", global_count)
@@ -47,13 +52,13 @@ async def disconnect(sid):
     global_count -= 1
     await sio.emit(
         "global_count_event",
-        {"message": "client disconnected", "global_count": global_count},
+        {"count": global_count, "max": max_global_count},
     )
     for room in get_sid_rooms(sid):
         room_count[room] -= 1
         await sio.emit(
             "count_event",
-            {"message": "client disconnected", "clients": room_count[room]},
+            {"count": room_count[room], "max": room_max_count[room]},
             room=room,
         )
     print("disconnected", sid)
@@ -64,9 +69,11 @@ async def disconnect(sid):
 async def join_room(sid, room):
     await sio.enter_room(sid, room)
     room_count[room] += 1
+    if room_count[room] > room_max_count[room]:
+        room_max_count[room] = room_count[room]
     await sio.emit(
         "count_event",
-        {"message": "client connected", "clients": room_count[room]},
+        {"count": room_count[room], "max": room_max_count[room]},
         room=room,
     )
     print("joinned", room)

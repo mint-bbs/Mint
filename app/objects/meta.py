@@ -14,6 +14,13 @@ class ChangeableMetaData(BaseModel):
     captcha_secret: Optional[str] = None
 
 
+class PublicMetaData(BaseModel):
+    id: int
+    name: Optional[str] = None
+    captcha_type: Optional[CaptchaType] = None
+    captcha_sitekey: Optional[str] = None
+
+
 def convertDatetime(dt: datetime) -> str:
     return dt.isoformat()
 
@@ -25,6 +32,9 @@ class MetaData(BaseModel):
     captcha_type: CaptchaType
     captcha_sitekey: Optional[str] = None
     captcha_secret: Optional[str] = None
+
+    def public(self):
+        return PublicMetaData.model_validate(self.model_dump())
 
     class Config:
         json_encoders = {datetime: convertDatetime}

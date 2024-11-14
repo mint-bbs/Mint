@@ -23,6 +23,19 @@
     <link rel="stylesheet" href="/static/css/read.css" />
   </head>
   <body>
+    <div class="pv">
+      <div class="localViews">
+        <span style="font-size: 50%">スレッド内: </span>
+        <span id="localViews">1人</span>
+        <span id="localMaxViews" style="font-size: 50%">/ 2人</span>
+      </div>
+      <div class="globalViews">
+        <span style="font-size: 50%">全体: </span>
+        <span id="globalViews">1人</span>
+        <span id="globalMaxViews" style="font-size: 50%">/ 2人</span>
+      </div>
+    </div>
+
     <section class="section" data-theme="light">
       <div class="container">
         <div class="controller">
@@ -33,9 +46,11 @@
         </div>
         <h1 class="thread-title">ロード中です</h1>
 
-        <progress id="progress" class="progress is-link" value="0" max="2">
-          Now Loading...
-        </progress>
+        <div class="progress-bar">
+          <progress id="progress" class="progress is-link" value="0" max="2">
+            Now Loading...
+          </progress>
+        </div>
 
         <div class="responses">
           <div class="thread">

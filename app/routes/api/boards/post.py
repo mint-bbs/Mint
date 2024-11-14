@@ -67,11 +67,11 @@ async def postThread(
             status_code=413,
             detail=f"名前が指定されたサイズより長いです。短くしてください。({len(model.name)} > {board.name_count})",
         )
-    model.content = html.escape(model.content)
-    if len(model.content) > board.message_count:
+    model.content = html.escape(model.content.strip())
+    if model.content == "":
         raise HTTPException(
-            status_code=413,
-            detail=f"本文が指定されたサイズより長いです。短くしてください。({len(model.content)} > {board.message_count})",
+            status_code=401,
+            detail=f"本文を空欄にすることはできません。",
         )
     model.title = html.escape(model.title)
     if len(model.title) > board.subject_count:
@@ -90,13 +90,15 @@ async def postThread(
         content=model.content,
     )
 
-    response.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+    response.set_cookie("2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10)
 
     backgroundTasks.add_task(
         sio.emit,
         "thread_posted",
-        newThread.model_dump(),
+        newThread.model_dump_json(),
         room=f"board_{board.id}",
     )
+
+    print(f"board_{board.id}")
 
     return {"detail": "スレッドを建てました！", "thread": newThread}

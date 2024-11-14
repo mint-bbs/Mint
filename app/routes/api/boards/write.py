@@ -1,3 +1,4 @@
+import orjson
 import html
 import re
 
@@ -71,7 +72,13 @@ async def postThread(
             status_code=413,
             detail=f"名前が指定されたサイズより長いです。短くしてください。({len(model.name)} > {board.name_count})",
         )
-    model.content = html.escape(model.content)
+
+    model.content = html.escape(model.content.strip())
+    if model.content == "":
+        raise HTTPException(
+            status_code=401,
+            detail=f"本文を空欄にすることはできません。",
+        )
     if len(model.content) > board.message_count:
         raise HTTPException(
             status_code=413,
@@ -84,15 +91,22 @@ async def postThread(
         name=model.name,
         account_id=authUser["account_id"],
         content=model.content,
+        count=thread.count + 1,
     )
 
-    response.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+    response.set_cookie("2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10)
 
     backgroundTasks.add_task(
         sio.emit,
         "thread_writed",
-        newResponse.model_dump(),
+        newResponse.model_dump_json(),
         room=f"board_{board.id}_thread_{newResponse.thread_id}",
     )
 
-    return {"detail": "スレッドに書き込みました！", "thread": newResponse}
+    async def threadPositionChanged(board: objects.Board):
+        json = await ThreadService.getThreads(board.id, limit=50, json=True)
+        await sio.emit("thread_position_changed", json, room=f"board_{board.id}")
+
+    backgroundTasks.add_task(threadPositionChanged, board)
+
+    return {"detail": "スレッドに書き込みました！", "response": newResponse}

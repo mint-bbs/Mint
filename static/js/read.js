@@ -1,7 +1,86 @@
 const cachedResponses = [];
+let socketConnected = false;
 
 let board = location.pathname.split("/")[3];
 let key = location.pathname.split("/")[4];
+
+const AudioContext =
+  window.AudioContext ||
+  window.webkitAudioContext ||
+  window.mozAudioContext ||
+  window.oAudioContext ||
+  window.msAudioContext;
+const audioContext = new AudioContext();
+
+let source = audioContext.createBufferSource();
+let audioBuffer;
+
+fetch("/static/sounds/notification.mp3")
+  .then((response) => response.arrayBuffer())
+  .then((arrayBuffer) => audioContext.decodeAudioData(arrayBuffer))
+  .then((buffer) => {
+    audioBuffer = buffer;
+  })
+  .catch((error) => console.error(error));
+
+function playSound() {
+  if (!audioBuffer) return;
+
+  const source = audioContext.createBufferSource();
+  source.buffer = audioBuffer;
+  source.connect(audioContext.destination);
+  source.start();
+}
+
+function connectSocketIO() {
+  const socket = io();
+
+  socket.on("connect", () => {
+    bulmaToast.toast({
+      message: "通知サーバーに接続しました。",
+      type: "is-success",
+      duration: 500,
+      dismissible: false,
+      pauseOnHover: true,
+      position: "top-right",
+      closeOnClick: false,
+      extraClasses: "popup",
+      animate: { in: "fadeIn", out: "fadeOut" },
+    });
+
+    socket.emit("join_room", `board_${board}_thread_${key}`);
+  });
+
+  socket.on("global_count_event", (data) => {
+    document.getElementById("globalViews").textContent = `${data.count}人`;
+    document.getElementById("globalMaxViews").textContent = `/ ${data.max}人`;
+  });
+
+  socket.on("count_event", (data) => {
+    document.getElementById("localViews").textContent = `${data.count}人`;
+    document.getElementById("localMaxViews").textContent = `/ ${data.max}人`;
+  });
+
+  socket.on("thread_writed", (data) => {
+    bulmaToast.toast({
+      message: "レス + 1",
+      type: "is-success",
+      duration: 2000,
+      dismissible: false,
+      pauseOnHover: true,
+      position: "top-right",
+      closeOnClick: false,
+      extraClasses: "popup",
+      animate: { in: "fadeIn", out: "fadeOut" },
+    });
+    playSound();
+
+    cachedResponses.push(JSON.parse(data));
+    console.log(cachedResponses);
+    console.log(cachedResponses.length);
+    refreshThread(cachedResponses);
+  });
+}
 
 function getCookie(name) {
   const value = `; ${document.cookie}`;
@@ -33,9 +112,11 @@ async function refreshThread(responses) {
 
   var returnDate = new Date();
 
+  document.querySelector(".progress-bar").innerHTML =
+    '<progress id="progress" class="progress is-link" value="0" max="2">Now Loading...</progress>';
+
   responses.forEach((response) => {
     count += 1;
-    cachedResponses.push(response);
 
     const node = document.createElement("div");
     node.classList.add("thread");
@@ -62,6 +143,12 @@ async function refreshThread(responses) {
   responsesElement.innerHTML = "";
   nodes.forEach((node) => responsesElement.appendChild(node));
   progressBar.remove();
+
+  if (!socketConnected) {
+    connectSocketIO();
+    socketConnected = true;
+  }
+
   return returnDate;
 }
 
@@ -93,25 +180,21 @@ async function post(e) {
     submit.classList.remove("is-loading");
 
     if (response.status == 200) {
-      document.cookie = response.headers.cookie;
-
       bulmaToast.toast({
         message: "スレッドに書き込みました。",
         type: "is-success",
         duration: 5000,
         dismissible: false,
         pauseOnHover: true,
-        position: "top-left",
+        position: "top-right",
         closeOnClick: false,
         extraClasses: "popup",
         animate: { in: "fadeIn", out: "fadeOut" },
       });
-      setTimeout(function () {
-        e.target.querySelector("input[name=name]").value = "";
-        e.target.querySelector("input[name=authKey]").value = "";
-        e.target.querySelector("textarea[name=content]").value = "";
-        submit.disabled = false;
-      }, 1000);
+      e.target.querySelector("input[name=name]").value = "";
+      e.target.querySelector("input[name=authKey]").value = "";
+      e.target.querySelector("textarea[name=content]").value = "";
+      submit.disabled = false;
     } else {
       bulmaToast.toast({
         message: jsonData.detail,
@@ -119,14 +202,12 @@ async function post(e) {
         duration: 5000,
         dismissible: true,
         pauseOnHover: true,
-        position: "top-left",
+        position: "top-right",
         closeOnClick: true,
         extraClasses: "popup",
         animate: { in: "fadeIn", out: "fadeOut" },
       });
-      setTimeout(function () {
-        submit.disabled = false;
-      }, 1000);
+      submit.disabled = false;
     }
   } catch {
     bulmaToast.toast({
@@ -135,14 +216,12 @@ async function post(e) {
       duration: 5000,
       dismissible: true,
       pauseOnHover: true,
-      position: "top-left",
+      position: "top-right",
       closeOnClick: true,
       extraClasses: "popup",
       animate: { in: "fadeIn", out: "fadeOut" },
     });
-    setTimeout(function () {
-      submit.disabled = false;
-    }, 1000);
+    submit.disabled = false;
   }
 }
 
@@ -154,6 +233,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const responses = JSON.parse(data);
   console.log(responses);
   progressBar.max = responses.length;
+  responses.forEach((response) => {
+    cachedResponses.push(response);
+  });
   date = await refreshThread(responses);
 
   document.querySelector(".size").textContent = `${data.length}KB`;

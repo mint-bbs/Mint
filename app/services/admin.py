@@ -1,19 +1,24 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Header, HTTPException
+from fastapi import Header, Cookie, HTTPException
 
 from .database import DatabaseService
 
 
 class AdminPanelSessionService:
     @classmethod
-    async def sessionCheck(cls, x_mint_session: str = Header(...)):
-        if not x_mint_session:
+    async def sessionCheck(
+        cls, x_mint_session: str = Header(None), session: str = Cookie(None)
+    ):
+        if (not x_mint_session) and (not session):
             raise HTTPException(status_code=403)
-        session = await cls.validateSession(x_mint_session)
+        session = await cls.validateSession(x_mint_session or session)
         if not session:
             raise HTTPException(status_code=403)
+        session = dict(session)
+        session["user"] = dict(session["user"])
+        del session["user"]["password"]
         return session
 
     @classmethod

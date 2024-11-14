@@ -6,7 +6,7 @@ from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
-from ...objects import Jinja2SJISTemplates, Response
+from ...objects import Jinja2SJISTemplates, Response, Board
 from ...services.auth import AuthService
 from ...services.board import BoardService
 from ...services.thread import ThreadService
@@ -164,7 +164,22 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             },
             headers={"content-type": "text/html; charset=shift_jis"},
         )
-    content = html.escape(MESSAGE.encode("utf-8").decode("utf-8"))
+    content = html.escape(MESSAGE.encode("utf-8").decode("utf-8").strip())
+    if content == "":
+        return templates.TemplateResponse(
+            request=request,
+            name="bbscgi_error.html",
+            context={
+                "message": "本文を空欄にすることはできません！",
+                "ipaddr": ipaddr,
+                "bbs": bbs,
+                "key": key,
+                "FROM": FROM,
+                "mail": mail,
+                "MESSAGE": content,
+            },
+            headers={"content-type": "text/html; charset=shift_jis"},
+        )
     if len(content) > board.message_count:
         return templates.TemplateResponse(
             request=request,
@@ -218,12 +233,14 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             headers={"content-type": "text/html; charset=shift_jis"},
         )
 
-        templateResponse.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+        templateResponse.set_cookie(
+            "2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10
+        )
 
         backgroundTasks.add_task(
             sio.emit,
             "thread_posted",
-            newThread.model_dump(),
+            newThread.model_dump_json(),
             room=f"board_{bbs}",
         )
 
@@ -235,6 +252,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             name=FROM,
             account_id=authUser["account_id"],
             content=content,
+            count=thread.count + 1,
         )
         templateResponse = templates.TemplateResponse(
             request=request,
@@ -246,13 +264,21 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             headers={"content-type": "text/html; charset=shift_jis"},
         )
 
-        templateResponse.set_cookie("2ch_X", chCookie, max_age=365 * 10)
+        templateResponse.set_cookie(
+            "2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10
+        )
 
         backgroundTasks.add_task(
             sio.emit,
             "thread_writed",
-            response.model_dump(),
-            room=f"board_{bbs}_thread_{response.thread_id}",
+            response.model_dump_json(),
+            room=f"board_{board.id}_thread_{response.thread_id}",
         )
+
+        async def threadPositionChanged(board: Board):
+            json = await ThreadService.getThreads(board.id, limit=50, json=True)
+            await sio.emit("thread_position_changed", json, room=f"board_{board.id}")
+
+        backgroundTasks.add_task(threadPositionChanged, board)
 
         return templateResponse

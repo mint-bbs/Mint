@@ -38,24 +38,3 @@ li {
   padding-right: 40px;
   padding-left: 40px;
 }
-
-.pv {
-  position: fixed;
-  top: 5px;
-  left: 5px;
-
-  padding: 5px;
-
-  border: solid 1px;
-  border-radius: 5px;
-  border-color: #565656;
-  color: black;
-
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(1px);
-  -webkit-backdrop-filter: blur(1px);
-
-  z-index: 1000;
-
-  pointer-events: none;
-}

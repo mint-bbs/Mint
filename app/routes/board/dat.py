@@ -40,7 +40,10 @@ async def dat(boardName: str, threadId: int):
         )
     threadDat.append("")
     return PlainTextResponse(
-        "\n".join(threadDat).encode("shift_jis"),
+        "\n".join(threadDat)
+        .encode("ascii", "xmlcharrefreplace")
+        .decode()
+        .encode("shift_jis"),
         200,
         headers={"content-type": "text/plain; charset=shift_jis"},
     )

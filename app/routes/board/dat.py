@@ -27,14 +27,26 @@ async def dat(boardName: str, threadId: int):
     if not thread:
         raise HTTPException(status_code=404)
     threadDat = []
+    thread.content = (
+        thread.content.replace("\r\n", " <br> ")
+        .replace("\r", " <br> ")
+        .replace("\n", " <br> ")
+    )
     threadDat.append(
-        f"{thread.name}<><>{thread.created_at.strftime('%Y/%m/%d')}({weekdays[thread.created_at.weekday()]}) {thread.created_at.strftime('%H/%M/%S')}.{thread.created_at.strftime('%f')[0:1]} ID:{thread.account_id}<> {thread.content.replace("\n", " <br> ")} <>{thread.title}"
+        f"{thread.name}<><>{thread.created_at.strftime('%Y/%m/%d')}({weekdays[thread.created_at.weekday()]}) {thread.created_at.strftime('%H/%M/%S')}.{thread.created_at.strftime('%f')[0:1]} ID:{thread.account_id}<> {thread.content} <>{thread.title}"
     )
     responses = await ResponseService.getResponses(board.id, threadId)
     for response in responses:
-        threadDat.append(
-            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content.replace("\n", " <br> ")} <>"
+        response.content = (
+            response.content.replace("\r\n", " <br> ")
+            .replace("\r", " <br> ")
+            .replace("\n", " <br> ")
         )
+
+        threadDat.append(
+            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>"
+        )
+    threadDat.append("")
     return PlainTextResponse(
         "\n".join(threadDat).encode("shift_jis"),
         200,

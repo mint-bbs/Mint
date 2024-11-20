@@ -164,7 +164,11 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             },
             headers={"content-type": "text/html; charset=shift_jis"},
         )
-    content = html.escape(MESSAGE.encode("utf-8").decode("utf-8").strip())
+    content = (
+        html.escape(MESSAGE.encode("utf-8").decode("utf-8").strip())
+        .replace("\r\n", "\n")
+        .replace("\r", "\n")
+    )
     if content == "":
         return templates.TemplateResponse(
             request=request,

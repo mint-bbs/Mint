@@ -133,7 +133,10 @@ async function refreshThread(responses, threadId) {
 
     const content = document.createElement("div");
     content.classList.add("content");
-    response.content = response.content.replace("\n", " <br> ");
+    response.content = response.content
+      .replace("\r\n", " <br> ")
+      .replace("\r", " <br> ")
+      .replace("\n", " <br> ");
     response.content = response.content.replace(
       /&gt;&gt;(\d+(-\d+)?(,\d+(-\d+)?)*)/g,
       (match, group) => {

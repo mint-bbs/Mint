@@ -129,14 +129,12 @@ async function refreshThread(responses, threadId) {
       document.querySelector(".thread-title").textContent = response.title;
       returnDate = date;
       ownerId = response.account_id;
-    } else {
-      ownerId = null;
     }
 
     let ownerFlag = "";
 
-    if (ownerId) {
-      ownerFlag = "<span style='color: red;'>主</span>";
+    if (response.account_id == ownerId) {
+      ownerFlag = "<span style='color: red; font-size: small;'>主</span>";
     } else {
       ownerFlag = "";
     }

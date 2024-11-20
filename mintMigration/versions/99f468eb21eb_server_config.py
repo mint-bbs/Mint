@@ -34,7 +34,7 @@ def upgrade() -> None:
             "created_at",
             sa.DateTime(timezone=True),
             default=sa.func.now(),
-            nullable=False,
+            nullable=True,
         ),
         sa.Column("name", sa.String(), nullable=False),
         sa.Column(

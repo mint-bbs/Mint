@@ -133,11 +133,11 @@ async function refreshThread(responses, threadId) {
 
     const content = document.createElement("div");
     content.classList.add("content");
-    response.content = response.content.replace(
+    response.content = response.content.replaceAll(
       /((?<!href="|href='|src="|src=')(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
       "<a href='$1'>$1</a>"
     );
-    response.content = response.content.replace(
+    response.content = response.content.replaceAll(
       /&gt;&gt;(\d+(-\d+)?(,\d+(-\d+)?)*)/g,
       (match, group) => {
         const targets = group
@@ -165,7 +165,7 @@ async function refreshThread(responses, threadId) {
       "<a href='#response_$1'><span class='response-link' data-targets='$1'>&gt;&gt;$1</span></a>"
     );
 
-    response.content = response.content.replace("\n", " <br> ");
+    response.content = response.content.replaceAll("\n", " <br> ");
 
     node.append(content);
 

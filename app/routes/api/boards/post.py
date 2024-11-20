@@ -60,6 +60,8 @@ async def postThread(
     if not board:
         raise HTTPException(status_code=404, detail="板が見つかりませんでした。")
 
+    _raw_name = model.name
+
     model.name = (
         TripService.tripper(html.escape(model.name))
         if model.name != ""
@@ -97,6 +99,7 @@ async def postThread(
     )
 
     response.set_cookie("2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10)
+    response.set_cookie("NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10)
 
     backgroundTasks.add_task(
         sio.emit,

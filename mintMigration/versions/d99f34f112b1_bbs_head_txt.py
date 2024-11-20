@@ -20,7 +20,7 @@ depends_on: Union[str, Sequence[str], None] = None
 
 def upgrade() -> None:
     head = """'<div style="text-align: center; margin: 1.2em 0">
-    <span style="color: red">クリックで救える命が…ないです(｀･ω･´)ｼｬｷｰﾝ</font>
+    <span style="color: red">クリックで救える命が…ないです(｀･ω･´)ｼｬｷｰﾝ</span>
 </div>
 
 <b>掲示板使用上の注意</b>

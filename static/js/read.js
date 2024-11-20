@@ -272,6 +272,8 @@ async function post(e) {
 document.addEventListener("DOMContentLoaded", async () => {
   const progressBar = document.getElementById("progress");
 
+  document.getElementById("name").value = getCookie("NAME");
+
   const response = await fetch(`/api/boards/${board}/threads/${key}`);
   const data = await response.text();
   const responses = JSON.parse(data);

@@ -1,7 +1,7 @@
 import secrets
 from datetime import datetime, timedelta, timezone
 
-from fastapi import Header, Cookie, HTTPException
+from fastapi import Cookie, Header, HTTPException
 
 from .database import DatabaseService
 

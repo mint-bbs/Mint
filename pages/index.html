@@ -4,13 +4,50 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>トップページ | {{ metadata.name }}</title>
+    <link rel="stylesheet" href="/static/css/animate.min.css" />
     <link rel="stylesheet" href="/static/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/css/index.css" />
+
+    <script src="/static/js/socket.io.min.js"></script>
+    <script src="/static/js/bulma-toast.min.js"></script>
+    <script src="/static/js/index.js"></script>
   </head>
   <body>
-    <section class="section">
+    <div class="pv">
+      <div class="localViews">
+        <span style="font-size: 50%">ページ内: </span>
+        <span id="localViews">0人</span>
+        <span id="localMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+      <div class="globalViews">
+        <span style="font-size: 50%">全体: </span>
+        <span id="globalViews">0人</span>
+        <span id="globalMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+    </div>
+
+    <section class="section full-height">
       <div class="container">
-        <h1 class="title">Hello World</h1>
-        <p class="subtitle">My first website with <strong>Bulma</strong>!</p>
+        <div class="columns is-vcentered is-centered">
+          <div
+            class="has-text-centered is-centered has-background-black-ter"
+            style="border: solid 0px; border-radius: 10px; padding: 10px"
+          >
+            <h1 class="title is-5">{{metadata.name}}</h1>
+            <div class="boards"></div>
+            <div class="senbura">
+              <p>
+                専用ブラウザからこの掲示板を閲覧するには、以下のURLを使用して板一覧を追加してください：
+              </p>
+              <input
+                type="text"
+                class="input is-link"
+                value="{{request.base_url}}bbsmenu.html"
+                readonly
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   </body>

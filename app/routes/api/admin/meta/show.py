@@ -1,8 +1,8 @@
 import dotenv
 from fastapi import APIRouter, Depends
 
-from .....services.meta import MetaDataService
 from .....services.admin import AdminPanelSessionService
+from .....services.meta import MetaDataService
 
 dotenv.load_dotenv()
 

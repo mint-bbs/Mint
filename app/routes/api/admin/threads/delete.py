@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException
 
 from .....objects import Board
 from .....services.admin import AdminPanelSessionService
-from .....services.thread import ThreadService
 from .....services.database import DatabaseService
+from .....services.thread import ThreadService
 
 dotenv.load_dotenv()
 

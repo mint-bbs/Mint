@@ -6,7 +6,7 @@ from datetime import datetime
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
-from ...objects import Jinja2SJISTemplates, Response, Board
+from ...objects import Board, Jinja2SJISTemplates, Response
 from ...services.auth import AuthService
 from ...services.board import BoardService
 from ...services.thread import ThreadService

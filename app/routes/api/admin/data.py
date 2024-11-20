@@ -1,8 +1,8 @@
 import dotenv
 from fastapi import APIRouter
 
-from ....services.meta import MetaDataService
 from ....services.database import DatabaseService
+from ....services.meta import MetaDataService
 
 dotenv.load_dotenv()
 

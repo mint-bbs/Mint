@@ -1,6 +1,6 @@
 import bcrypt
 import dotenv
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 
 from ....services.admin import AdminPanelSessionService
 from ....services.database import DatabaseService

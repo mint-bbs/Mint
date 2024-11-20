@@ -28,7 +28,8 @@ class BoardService:
         title: str,
         name: str,
         account_id: str,
-        content: str
+        content: str,
+        ipaddr: str
     ) -> Thread:
         check = await DatabaseService.pool.fetchrow(
             "SELECT * FROM threads WHERE timestamp = $1 AND board = $2",
@@ -40,7 +41,7 @@ class BoardService:
             timestamp += 1
 
         row = await DatabaseService.pool.fetchrow(
-            "INSERT INTO threads (id, timestamp, board, title, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+            "INSERT INTO threads (id, timestamp, board, title, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7, &8) RETURNING *",
             cls.randomID(5),
             timestamp,
             board,
@@ -48,5 +49,6 @@ class BoardService:
             name,
             account_id,
             content,
+            ipaddr,
         )
         return Thread.model_validate(dict(row))

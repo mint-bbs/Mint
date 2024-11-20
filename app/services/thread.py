@@ -91,16 +91,18 @@ class ThreadService:
         name: str,
         account_id: str,
         content: str,
-        count: int
+        count: int,
+        ipaddr: str
     ) -> Response:
         row = await DatabaseService.pool.fetchrow(
-            "INSERT INTO responses (id, thread_id, board, name, account_id, content) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            "INSERT INTO responses (id, thread_id, board, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
             cls.randomID(5),
             threadId,
             board,
             name,
             account_id,
             content,
+            ipaddr,
         )
 
         asyncio.create_task(

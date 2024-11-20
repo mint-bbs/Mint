@@ -27,7 +27,9 @@ async function metaDataMenu() {
     
               <form id="metaData">
                   メタデータID：
-                  <input name="id" class="input" value="${metadata.id}" disabled />
+                  <input name="id" class="input" value="${
+                    metadata.id
+                  }" disabled />
                   サイトの名前：
                   <input name="name" class="input" value="${metadata.name}" />
                   認証で使うキャプチャの種類：
@@ -38,9 +40,13 @@ async function metaDataMenu() {
                     <option value="TURNSTILE">Turnstile</option>
                   </select>
                   キャプチャのサイトキー：
-                  <input name="captcha_sitekey" class="input" value="${metadata.captcha_sitekey}" />
+                  <input name="captcha_sitekey" class="input" value="${
+                    metadata.captcha_sitekey || ""
+                  }" />
                   キャプチャのシークレットキー：
-                  <input name="captcha_secret" type="password" class="input" value="${metadata.captcha_secret}" />
+                  <input name="captcha_secret" type="password" class="input" value="${
+                    metadata.captcha_secret || ""
+                  }" />
                   <br>
                   <button class="button is-success is-fullwidth" id="metadataEditSubmit" type="submit">編集</button>
               </form>

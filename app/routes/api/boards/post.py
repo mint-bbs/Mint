@@ -70,7 +70,9 @@ async def postThread(
             status_code=413,
             detail=f"名前が指定されたサイズより長いです。短くしてください。({len(model.name)} > {board.name_count})",
         )
-    model.content = html.escape(model.content.strip())
+    model.content = (
+        html.escape(model.content.strip()).replace("\r\n", "\n").replace("\r", "\n")
+    )
     if model.content == "":
         raise HTTPException(
             status_code=401,

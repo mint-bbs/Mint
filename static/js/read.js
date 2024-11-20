@@ -129,6 +129,8 @@ async function refreshThread(responses, threadId) {
       document.querySelector(".thread-title").textContent = response.title;
       returnDate = date;
       ownerId = response.account_id;
+    } else {
+      ownerId = null;
     }
 
     let ownerFlag = "";

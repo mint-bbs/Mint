@@ -6,7 +6,7 @@ from .database import DatabaseService
 
 class ResponseService:
     @classmethod
-    async def getResponses(cls, board: str, thread_id: int) -> Optional[List[Response]]:
+    async def getResponses(cls, threadId: str) -> Optional[List[Response]]:
         """スレッドについたレスの一覧を返します。
 
         Args:
@@ -17,9 +17,8 @@ class ResponseService:
             Optional[List[Response]]: レス一覧
         """
         rows = await DatabaseService.pool.fetch(
-            "SELECT * FROM responses WHERE board = $1 AND thread_id = $2 ORDER BY created_at ASC",
-            board,
-            thread_id,
+            "SELECT * FROM responses WHERE thread_id = $1 ORDER BY created_at ASC",
+            threadId,
         )
         if not rows:
             return []

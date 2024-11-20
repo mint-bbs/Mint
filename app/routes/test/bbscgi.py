@@ -147,9 +147,13 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
     _raw_name = FROM.encode("utf-8").decode("utf-8")
 
     FROM = (
-        TripService.tripper(html.escape(_raw_name))
-        if FROM != ""
-        else board.anonymous_name
+        (
+            TripService.tripper(html.escape(_raw_name))
+            if FROM != ""
+            else board.anonymous_name
+        )
+        .replace("\r", "")
+        .replace("\n", "")
     )
     if len(FROM) > board.name_count:
         return templates.TemplateResponse(
@@ -202,7 +206,11 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             headers={"content-type": "text/html; charset=shift_jis"},
         )
     if subject:
-        subject = html.escape(subject.encode("utf-8").decode("utf-8"))
+        subject = (
+            html.escape(subject.encode("utf-8").decode("utf-8"))
+            .replace("\r", "")
+            .replace("\n", "")
+        )
 
         if len(subject) > board.subject_count:
             return templates.TemplateResponse(

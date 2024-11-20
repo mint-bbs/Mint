@@ -67,7 +67,7 @@ class AuthService:
                     return None
 
         code = secrets.token_hex(10)
-        account_id = cls.randomID(4)
+        account_id = cls.randomID(9)
 
         await DatabaseService.pool.execute(
             """

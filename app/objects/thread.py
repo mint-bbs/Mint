@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 def convertDatetime(dt: datetime) -> str:
@@ -16,7 +16,7 @@ class Thread(BaseModel):
     account_id: str
     created_at: datetime
     content: str
-    count: int = 1
+    count: int = Field(1)
 
     class Config:
         json_encoders = {datetime: convertDatetime}

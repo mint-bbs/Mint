@@ -93,6 +93,7 @@ async def postThread(
         name=model.name,
         account_id=authUser["account_id"],
         content=model.content,
+        ipaddr=ipaddr,
     )
 
     response.set_cookie("2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10)

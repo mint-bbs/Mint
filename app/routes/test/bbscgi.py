@@ -226,6 +226,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             name=FROM,
             account_id=authUser["account_id"],
             content=content,
+            ipaddr=ipaddr,
         )
         templateResponse = templates.TemplateResponse(
             request=request,
@@ -257,6 +258,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             account_id=authUser["account_id"],
             content=content,
             count=thread.count + 1,
+            ipaddr=ipaddr,
         )
         templateResponse = templates.TemplateResponse(
             request=request,

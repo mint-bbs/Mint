@@ -40,7 +40,7 @@ def upgrade() -> None:
         sa.Column(
             "captcha_type",
             sa.Enum(CaptchaType),
-            server_default=sa.text("NONE"),
+            server_default=sa.text("'NONE'"),
             nullable=False,
         ),
         sa.Column("captcha_sitekey", sa.String(), nullable=True),

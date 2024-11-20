@@ -41,7 +41,7 @@ class BoardService:
             timestamp += 1
 
         row = await DatabaseService.pool.fetchrow(
-            "INSERT INTO threads (id, timestamp, board, title, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7, &8) RETURNING *",
+            "INSERT INTO threads (id, timestamp, board, title, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
             cls.randomID(5),
             timestamp,
             board,

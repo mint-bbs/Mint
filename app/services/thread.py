@@ -10,6 +10,24 @@ from .database import DatabaseService
 
 class ThreadService:
     @classmethod
+    async def getThreadMON(cls, threadId: str) -> Optional[Thread]:
+        """スレッドを取得します。
+
+        Args:
+            board (str): 板のID。
+            threadId (str): スレッドのID。
+
+        Returns:
+            Optional[Thread]: スレッド一覧
+        """
+        row = await DatabaseService.pool.fetchrow(
+            "SELECT * FROM threads WHERE id = $1", threadId
+        )
+        if not row:
+            return None
+        return Thread.model_validate(dict(row))
+
+    @classmethod
     async def getThread(cls, board: str, threadId: int) -> Optional[Thread]:
         """スレッドを取得します。
 
@@ -67,7 +85,7 @@ class ThreadService:
     async def write(
         cls,
         board: str,
-        threadId: int,
+        threadId: str,
         *,
         name: str,
         account_id: str,
@@ -86,9 +104,8 @@ class ThreadService:
 
         asyncio.create_task(
             DatabaseService.pool.execute(
-                "UPDATE ONLY threads SET last_wrote_at = $3, count = $4 WHERE timestamp = $1 AND board = $2",
+                "UPDATE ONLY threads SET last_wrote_at = $2, count = $3 WHERE id = $1",
                 threadId,
-                board,
                 datetime.now(),
                 count,
             )

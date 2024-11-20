@@ -9,7 +9,7 @@ def convertDatetime(dt: datetime) -> str:
 
 class Response(BaseModel):
     id: str
-    thread_id: int
+    thread_id: str
     board: str
     name: str
     account_id: str

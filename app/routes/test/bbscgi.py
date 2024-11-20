@@ -248,7 +248,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
     else:
         response: Response = await ThreadService.write(
             board.id,
-            int(key),
+            thread.id,
             name=FROM,
             account_id=authUser["account_id"],
             content=content,

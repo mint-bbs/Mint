@@ -32,7 +32,7 @@ function playSound() {
   source.start();
 }
 
-function connectSocketIO() {
+function connectSocketIO(threadId) {
   const socket = io();
 
   socket.on("connect", () => {
@@ -48,7 +48,7 @@ function connectSocketIO() {
       animate: { in: "fadeIn", out: "fadeOut" },
     });
 
-    socket.emit("join_room", `board_${board}_thread_${key}`);
+    socket.emit("join_room", `thread_${threadId}`);
   });
 
   socket.on("global_count_event", (data) => {
@@ -102,7 +102,7 @@ function formatDate(date) {
   return `${yyyy}/${mm}/${dd}(${w}) ${hours}:${minutes}:${seconds}.${milliseconds}`;
 }
 
-async function refreshThread(responses) {
+async function refreshThread(responses, threadId) {
   const progressBar = document.getElementById("progress");
 
   const responsesElement = document.querySelector(".responses");
@@ -120,19 +120,47 @@ async function refreshThread(responses) {
 
     const node = document.createElement("div");
     node.classList.add("thread");
+    node.id = `response_${count}`;
 
     const date = new Date(response.created_at);
     if (count == 1) {
       document.querySelector(".thread-title").textContent = response.title;
       returnDate = date;
     }
-    node.innerHTML = `${count}：<span style="color: green;"><b>${
+    node.innerHTML = `<span onclick="document.querySelector('.textarea').textContent += '>>${count}'">${count}：</span><span style="color: green;"><b>${
       response.name
     }</b></span>：${formatDate(date)} ID: ${response.account_id}`;
 
     const content = document.createElement("div");
     content.classList.add("content");
-    content.innerHTML = response.content;
+    response.content = response.content.replace(
+      /&gt;&gt;(\d+(-\d+)?(,\d+(-\d+)?)*)/g,
+      (match, group) => {
+        const targets = group
+          .split(",")
+          .map((part) => {
+            if (part.includes("-")) {
+              const [start, end] = part.split("-").map(Number);
+              return Array.from(
+                { length: end - start + 1 },
+                (_, i) => start + i
+              );
+            }
+            return [Number(part)];
+          })
+          .flat();
+
+        return `<span class="response-link" data-targets="${targets.join(
+          ","
+        )}">&gt;&gt;${group}</span>`;
+      }
+    );
+
+    content.innerHTML = response.content.replaceAll(
+      /&gt;&gt;(\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*)/g,
+      "<a href='#response_$1'><span class='response-link' data-targets='$1'>&gt;&gt;$1</span></a>"
+    );
+
     node.append(content);
 
     nodes.push(node);
@@ -145,7 +173,7 @@ async function refreshThread(responses) {
   progressBar.remove();
 
   if (!socketConnected) {
-    connectSocketIO();
+    connectSocketIO(threadId);
     socketConnected = true;
   }
 
@@ -191,8 +219,6 @@ async function post(e) {
         extraClasses: "popup",
         animate: { in: "fadeIn", out: "fadeOut" },
       });
-      e.target.querySelector("input[name=name]").value = "";
-      e.target.querySelector("input[name=authKey]").value = "";
       e.target.querySelector("textarea[name=content]").value = "";
       submit.disabled = false;
     } else {
@@ -232,11 +258,12 @@ document.addEventListener("DOMContentLoaded", async () => {
   const data = await response.text();
   const responses = JSON.parse(data);
   console.log(responses);
+  const threadId = responses[0].id;
   progressBar.max = responses.length;
   responses.forEach((response) => {
     cachedResponses.push(response);
   });
-  date = await refreshThread(responses);
+  date = await refreshThread(responses, threadId);
 
   document.querySelector(".size").textContent = `${data.length}KB`;
 
@@ -247,4 +274,63 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const postForm = document.getElementById("postForm");
   postForm.addEventListener("submit", post);
+
+  setupTooltip();
 });
+
+function setupTooltip() {
+  const tooltip = document.createElement("div");
+  tooltip.classList.add("tooltip");
+  tooltip.style.position = "absolute";
+  tooltip.style.pointerEvents = "none";
+  tooltip.style.backgroundColor = "#ABABABCC";
+  tooltip.style.backdropFilter = "blur(1px)";
+  tooltip.style.zIndex = 10000;
+  tooltip.style.color = "black";
+  tooltip.style.padding = "5px 10px";
+  tooltip.style.borderRadius = "5px";
+  tooltip.style.fontSize = "12px";
+  tooltip.style.display = "none";
+  document.body.appendChild(tooltip);
+
+  document.body.addEventListener("mouseover", (e) => {
+    if (e.target.classList.contains("response-link")) {
+      const targets = e.target.getAttribute("data-targets").split(",");
+
+      // 解析されたターゲットの範囲またはIDを取得
+      const targetResponses = targets
+        .map((part) => {
+          if (part.includes("-")) {
+            // 範囲形式（例: 1-5）に対応
+            const [start, end] = part.split("-").map(Number);
+            return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+          } else {
+            // 個別IDに対応
+            return [Number(part)];
+          }
+        })
+        .flat()
+        .map((id) => {
+          const responseElement = document.getElementById(`response_${id}`);
+          return responseElement
+            ? responseElement.innerHTML
+            : `<div>レス ${id} は存在しません</div>`;
+        });
+
+      // 取得したレスをツールチップに表示
+      tooltip.innerHTML = targetResponses.join("<hr>"); // 各レスを区切る
+      tooltip.style.display = "block";
+    }
+  });
+
+  document.body.addEventListener("mousemove", (e) => {
+    tooltip.style.left = `${e.pageX + 20}px`; // カーソルの少し右側に表示
+    tooltip.style.top = `${e.pageY + 20}px`; // カーソルの少し下側に表示
+  });
+
+  document.body.addEventListener("mouseout", (e) => {
+    if (e.target.classList.contains("response-link")) {
+      tooltip.style.display = "none";
+    }
+  });
+}

@@ -20,6 +20,6 @@ async def threadsList(boardName: str, threadId: int):
     thread = await ThreadService.getThread(board.id, threadId)
     if not thread:
         raise HTTPException(status_code=404)
-    responses = await ResponseService.getResponses(board.id, threadId)
+    responses = await ResponseService.getResponses(board.id, thread.id)
     responses.insert(0, thread)
     return responses

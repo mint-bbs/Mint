@@ -47,7 +47,10 @@ async def postThread(
         if match:
             chCookie = match.group(1)
         else:
-            raise HTTPException(status_code=401, detail="認証が必要です。")
+            raise HTTPException(
+                status_code=401,
+                detail="認証が必要です。<a href='/auth'>ここから認証</a>してください。",
+            )
 
     authUser = await AuthService.authCheck(chCookie)
     if not authUser:

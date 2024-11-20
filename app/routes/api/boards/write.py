@@ -48,7 +48,10 @@ async def postThread(
         if match:
             chCookie = match.group(1)
         else:
-            raise HTTPException(status_code=401, detail="認証が必要です。")
+            raise HTTPException(
+                status_code=401,
+                detail="認証が必要です。<a href='/auth'>ここから認証</a>してください。",
+            )
 
     authUser = await AuthService.authCheck(chCookie)
     if not authUser:
@@ -87,7 +90,7 @@ async def postThread(
 
     newResponse: objects.Response = await ThreadService.write(
         board.id,
-        thread.timestamp,
+        thread.id,
         name=model.name,
         account_id=authUser["account_id"],
         content=model.content,
@@ -100,7 +103,7 @@ async def postThread(
         sio.emit,
         "thread_writed",
         newResponse.model_dump_json(),
-        room=f"board_{board.id}_thread_{newResponse.thread_id}",
+        room=f"thread_{newResponse.thread_id}",
     )
 
     async def threadPositionChanged(board: objects.Board):

@@ -12,7 +12,7 @@ dotenv.load_dotenv()
 router = APIRouter()
 
 
-@router.patch("/api/admin/meta/edit")
+@router.post("/api/admin/meta/edit")
 async def editMeta(
     meta: ChangeableMetaData,
     session: dict = Depends(AdminPanelSessionService.sessionCheck),

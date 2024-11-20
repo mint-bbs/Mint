@@ -16,7 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
         <p class="subtitle">あなたのトークンは以下のとおりです。</p>
         <p>専ブラや、Cookieを保持できないブラウザでは、以下のトークンをメール欄に貼り付けてください。</p>
         <p class="has-text-danger">トークンは紛失したり、流失しないように厳重に管理してください！アカウントにログインできなくなったり、他人にアカウントを操作されたりしてしまいます！</p>
-        <input type="text" value="#${getCookie("2ch_X")}" disabled />
+        <input type="text" class="input" value="#${getCookie(
+          "2ch_X"
+        )}" readonly />
     `;
   }
 });
@@ -40,9 +42,9 @@ function callback(token) {
                 <p class="subtitle">認証に成功しました。</p>
                 <p>専ブラや、Cookieを保持できないブラウザでは、以下のトークンをメール欄に貼り付けてください。</p>
                 <p class="has-text-danger">トークンは紛失したり、流失しないように厳重に管理してください！アカウントにログインできなくなったり、他人にアカウントを操作されたりしてしまいます！</p>
-                <input type="text" value="#${jsonData.code}" disabled />
+                <input type="text" class="input" value="#${jsonData.code}" readonly />
                 <p>アカウントIDは以下のとおりです。</p>
-                <input type="text" value="${jsonData.account_id}" disabled />
+                <input type="text" class="input" value="${jsonData.account_id}" readonly />
             `;
       } else {
         document.querySelector(".container").innerHTML = `

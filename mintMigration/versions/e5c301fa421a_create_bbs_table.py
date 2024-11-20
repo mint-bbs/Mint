@@ -26,13 +26,13 @@ def upgrade() -> None:
         sa.Column(
             "anonymous_name",
             sa.String(),
-            server_default=sa.text("名無しさん"),
+            server_default=sa.text("'名無しさん'"),
             nullable=False,
         ),
         sa.Column(
             "deleted_name",
             sa.String(),
-            server_default=sa.text("あぼーん"),
+            server_default=sa.text("'あぼーん'"),
             nullable=False,
         ),
         sa.Column(

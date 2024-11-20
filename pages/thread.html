@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{thread.title}} ({{board.name}}) - {{metadata.name}}</title>
+
+    <meta property="og:title" content="{{thread.title}}" />
+    <meta property="og:description" content="{{thread.content | striptag}}" />
+    <meta property="og:url" content="{{request.url}}" />
+    <meta
+      property="og:image"
+      content="{{request.base_url}}static/img/mint.png"
+    />
+    <meta property="og:type" content="article" />
+
+    <script src="/static/js/socket.io.min.js"></script>
+    <script src="/static/js/bulma-toast.min.js"></script>
+    <script src="/static/js/read.js"></script>
+
+    <link rel="stylesheet" href="/static/css/animate.min.css" />
+    <link rel="stylesheet" href="/static/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/css/read.css" />
+  </head>
+  <body>
+    <div class="pv">
+      <div class="localViews">
+        <span style="font-size: 50%">スレッド内: </span>
+        <span id="localViews">0人</span>
+        <span id="localMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+      <div class="globalViews">
+        <span style="font-size: 50%">全体: </span>
+        <span id="globalViews">0人</span>
+        <span id="globalMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+    </div>
+
+    <section class="section" data-theme="light">
+      <div class="container">
+        <div class="controller">
+          <a href="/{{board.id}}">■掲示板に戻る■</a>
+          <a onclick="">全部</a>
+          <a onclick="">1-</a>
+          <a onclick="">最新50</a>
+        </div>
+        <h1 class="thread-title">ロード中です</h1>
+
+        <div class="progress-bar">
+          <progress id="progress" class="progress is-link" value="0" max="2">
+            Now Loading...
+          </progress>
+        </div>
+
+        <div class="responses">
+          <div class="thread">
+            1：<span style="color: green"><b>Now Loading</b></span
+            >：ロード中
+            <div class="content">現在スレッドをロード中です。</div>
+          </div>
+        </div>
+
+        <div class="size">-1KB</div>
+
+        <div class="info">
+          <div id="ikioi">勢い: -1</div>
+        </div>
+
+        <div class="controller">
+          <a href="/{{board.id}}">■掲示板に戻る■</a>
+          <a onclick="">全部</a>
+          <a onclick="">1-</a>
+          <a onclick="">最新50</a>
+        </div>
+
+        <div class="write">
+          <form id="postForm">
+            <div class="formInput">
+              名前：<input
+                placeholder="なまえ#とりっぷ"
+                type="text"
+                name="name"
+                size="19"
+                class="input"
+              />
+              認証キー：<input
+                placeholder="(省略可)"
+                type="text"
+                name="authKey"
+                size="19"
+                class="input"
+              /><br />
+            </div>
+            本文：<textarea
+              rows="5"
+              cols="60"
+              name="content"
+              class="textarea"
+            ></textarea>
+            <button
+              class="button is-fullwidth is-primary mt-3"
+              id="submit"
+              type="submit"
+            >
+              書き込み
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

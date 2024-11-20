@@ -1,0 +1,74 @@
+html,
+body {
+  font-size: 90%;
+  color: #222222;
+  background-color: #efefef;
+}
+
+.controller {
+  display: flex;
+  border-bottom: solid 1px;
+}
+
+.controller a {
+  padding: 2px;
+}
+
+.thread-title {
+  color: #ff0000;
+  font-size: larger;
+  font-weight: normal;
+}
+
+.content {
+  color: black;
+  padding-left: 30px;
+}
+
+.responses {
+  padding-bottom: 20px;
+}
+
+.size {
+  color: red;
+  font-weight: bold;
+}
+
+.info {
+  border: solid 1px;
+  border-left: solid 0px;
+  border-right: solid 0px;
+  display: flex;
+  justify-content: center;
+  padding: 10px;
+}
+
+.thread {
+  padding-top: 5px;
+}
+
+.popup {
+  padding: 20px;
+  padding-right: 40px;
+  padding-left: 40px;
+}
+
+.pv {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+
+  padding: 5px;
+
+  border: solid 1px;
+  border-radius: 5px;
+  border-color: #ababab;
+
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(1px);
+  -webkit-backdrop-filter: blur(1px);
+
+  z-index: 1000;
+
+  pointer-events: none;
+}

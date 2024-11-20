@@ -1,0 +1,31 @@
+<html lang="ja">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Shift_JIS" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+
+    <title>ＥＲＲＯＲ！</title>
+  </head>
+  <!--nobanner-->
+  <body>
+    <!-- 2ch_X:error -->
+    <div style="margin-bottom: 2em">
+      <font size="+1" color="#FF0000"><b>ＥＲＲＯＲ：{{ message }}</b></font>
+    </div>
+    <blockquote>
+      <div>これはエラーです。書き込んだ内容をもう一度確認してください。</div>
+    </blockquote>
+    <blockquote>
+      <br /><br />
+      IPアドレス：<b>{{ ipaddr }}</b><br />
+      <br />
+      名前： <b>{{ FROM if FROM is not none else "" }}</b><br />
+      E-mail： {{ mail if mail is not none else "" }}<br />
+      内容：<br />
+      {{ MESSAGE if MESSAGE is not none else "" }}
+      <br />
+      <br />
+    </blockquote>
+    <hr />
+    <div align="right">Mint v0.1.0</div>
+  </body>
+</html>

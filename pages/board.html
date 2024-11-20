@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{board.name}}</title>
+
+    <meta property="og:title" content="{{board.name}}" />
+    <meta property="og:description" content="{{board.head | striptag}}" />
+    <meta property="og:url" content="{{request.url}}" />
+    <meta
+      property="og:image"
+      content="{{request.base_url}}static/img/mint.png"
+    />
+    <meta property="og:type" content="article" />
+
+    <script src="/static/js/socket.io.min.js"></script>
+    <script src="/static/js/bulma-toast.min.js"></script>
+    <script src="/static/js/board.js"></script>
+
+    <link rel="stylesheet" href="/static/css/animate.min.css" />
+    <link rel="stylesheet" href="/static/css/bulma.min.css" />
+    <link rel="stylesheet" href="/static/css/board.css" />
+  </head>
+  <body>
+    <div class="pv">
+      <div class="localViews">
+        <span style="font-size: 50%">板内: </span>
+        <span id="localViews">0人</span>
+        <span id="localMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+      <div class="globalViews">
+        <span style="font-size: 50%">全体: </span>
+        <span id="globalViews">0人</span>
+        <span id="globalMaxViews" style="font-size: 50%">/ 0人</span>
+      </div>
+    </div>
+
+    <section class="section" data-theme="light">
+      <div class="container">
+        <div class="center">
+          <img
+            src="{{request.base_url}}static/img/mint.png"
+            alt="mint bbs"
+            class="logo"
+          />
+        </div>
+
+        <div class="table">
+          <div class="td">
+            <h1 class="title">{{ board.name }}</h1>
+            <p class="head">{{ board.head | safe }}</p>
+          </div>
+          <div class="td" style="text-align: center">
+            <a href="/">■トップページ■</a>
+          </div>
+        </div>
+
+        <div class="table">
+          <div class="td" id="threadsList"></div>
+        </div>
+
+        <div class="table">
+          <div class="td">
+            <h6 class="title is-6" style="padding: 0">新規スレッド作成</h6>
+            <form id="postForm">
+              スレッドタイトル：<input
+                placeholder="タイトル"
+                type="text"
+                name="title"
+                size="40"
+                class="input"
+              />
+              <div class="formInput">
+                名前：<input
+                  placeholder="なまえ#とりっぷ"
+                  type="text"
+                  name="name"
+                  size="19"
+                  class="input"
+                />
+                認証キー：<input
+                  placeholder="(省略可)"
+                  type="text"
+                  name="authKey"
+                  size="19"
+                  class="input"
+                /><br />
+              </div>
+              本文：<textarea
+                rows="5"
+                cols="60"
+                name="content"
+                class="textarea"
+              ></textarea>
+              <button
+                class="button is-fullwidth is-primary mt-3"
+                id="submit"
+                type="submit"
+              >
+                新規スレッド作成
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

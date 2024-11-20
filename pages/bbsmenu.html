@@ -1,0 +1,18 @@
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=Shift_JIS">
+<TITLE>BBS MENU for {{metadata.name}}</TITLE>
+<base target="_blank">
+</HEAD>
+<BODY TEXT="#CC3300" BGCOLOR="#FFFFFF" link="#0000FF" alink="#ff0000" vlink="#660099">
+<font size="2">
+<A HREF={{ request.base_url }}>{{metadata.name}}へようこそ</A>
+<BR><BR><B>板一覧</B><BR>{% for board in boards %}
+    <A HREF={{ request.base_url }}{{ board.id }}/>{{ board.name }}</A><BR>{% endfor %}
+<BR><BR><B>他のサイト</B><BR>
+    <A HREF=https://mint.14chan.jp>Mint</A><BR>
+    <A HREF=https://nennneko5787.net>開発者のサイト</A>
+<BR><BR>Mint v0.1.0
+</font>
+</BODY>
+</HTML>

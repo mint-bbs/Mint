@@ -1,0 +1,40 @@
+html,
+body {
+  font-size: 90%;
+  background-image: url("/static/img/ba.gif");
+  background-attachment: fixed;
+}
+
+.table {
+  background-color: #ccffcc;
+  padding: 2px;
+}
+
+li {
+  padding-left: 20px;
+}
+
+.td {
+  border: solid 1px;
+  border-color: black;
+  margin: 2px;
+  padding: 10px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo {
+  width: 40%;
+  height: 40%;
+  margin: 10px;
+}
+
+.popup {
+  padding: 20px;
+  padding-right: 40px;
+  padding-left: 40px;
+}

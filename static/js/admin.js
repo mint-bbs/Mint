@@ -377,12 +377,12 @@ async function editBoard(data) {
     body = {
       id: board.id,
       name: formData.get("name"),
-      anonymous_name: formData.get("anonymous_name"),
-      deleted_name: formData.get("deleted_name"),
-      subject_count: formData.get("subject_count"),
-      name_count: formData.get("name_count"),
-      message_count: formData.get("message_count"),
-      head: formData.get("head"),
+      anonymous_name: formData.get("anonymous_name") || null,
+      deleted_name: formData.get("deleted_name") || null,
+      subject_count: formData.get("subject_count") || null,
+      name_count: formData.get("name_count") || null,
+      message_count: formData.get("message_count") || null,
+      head: formData.get("head") || null,
     };
 
     const response = await fetch(`/api/admin/boards/${board.id}`, {
@@ -550,12 +550,12 @@ async function createBoard() {
     body = {
       id: formData.get("id"),
       name: formData.get("name"),
-      anonymous_name: formData.get("anonymous_name"),
-      deleted_name: formData.get("deleted_name"),
-      subject_count: formData.get("subject_count"),
-      name_count: formData.get("name_count"),
-      message_count: formData.get("message_count"),
-      head: formData.get("head"),
+      anonymous_name: formData.get("anonymous_name") || null,
+      deleted_name: formData.get("deleted_name") || null,
+      subject_count: formData.get("subject_count") || null,
+      name_count: formData.get("name_count") || null,
+      message_count: formData.get("message_count") || null,
+      head: formData.get("head") || null,
     };
 
     const response = await fetch(`/api/admin/boards/`, {

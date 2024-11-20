@@ -68,9 +68,13 @@ async def postThread(
     _raw_name = model.name
 
     model.name = (
-        TripService.tripper(html.escape(model.name))
-        if model.name != ""
-        else board.anonymous_name
+        (
+            TripService.tripper(html.escape(model.name))
+            if model.name != ""
+            else board.anonymous_name
+        )
+        .replace("\r", "")
+        .replace("\n", "")
     )
     if len(model.name) > board.name_count:
         raise HTTPException(

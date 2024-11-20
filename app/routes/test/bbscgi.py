@@ -144,8 +144,10 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
                 headers={"content-type": "text/html; charset=shift_jis"},
             )
 
+    _raw_name = FROM.encode("utf-8").decode("utf-8")
+
     FROM = (
-        TripService.tripper(html.escape(FROM.encode("utf-8").decode("utf-8")))
+        TripService.tripper(html.escape(_raw_name))
         if FROM != ""
         else board.anonymous_name
     )
@@ -241,6 +243,9 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
         templateResponse.set_cookie(
             "2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10
         )
+        templateResponse.set_cookie(
+            "NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10
+        )
 
         backgroundTasks.add_task(
             sio.emit,
@@ -272,6 +277,9 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
 
         templateResponse.set_cookie(
             "2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10
+        )
+        templateResponse.set_cookie(
+            "NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10
         )
 
         backgroundTasks.add_task(

@@ -8,7 +8,7 @@
 [![](https://img.shields.io/github/contributors/mint-bbs/mint.svg)](https://github.com/mint-bbs/mint/graphs/contributors "GitHub contributors")
 [![](https://img.shields.io/github/license/mint-bbs/mint.svg)](https://github.com/mint-bbs/mint/blob/master/LICENSE "License")
 
-<center>Mintは2ch互換掲示板を運営することができるソフトウェアです</center>
+<center>Mintは2ch互換掲示板を運営することができるソフトウェアです。</center>
 
 ## Features
 

@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     button.classList.add("button");
     button.classList.add("is-success");
     button.classList.add("is-fullwidth");
+    button.classList.add("mt-3");
     button.href = `/${board.id}`;
     button.textContent = board.name;
     boards.append(button);

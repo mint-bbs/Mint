@@ -24,7 +24,7 @@ class MetaDataService:
             )
             if not row:
                 row = await DatabaseService.pool.fetchrow(
-                    "INSERT INTO meta (id, name) VALUES ($1, $2) RETURNING *",
+                    "INSERT INTO meta (id, created_at, name) VALUES ($1, now(), $2) RETURNING *",
                     int(os.getenv("metaid")),
                     name,
                 )

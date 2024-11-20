@@ -198,7 +198,7 @@ async function post(e) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("name").value = getCookie("NAME");
+  document.getElementById("name").value = getCookie("NAME") or "";
 
   let response = await fetch(`/api/boards/${board}/threads`);
   let threads = await response.json();

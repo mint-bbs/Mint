@@ -110,6 +110,8 @@ async function refreshThread(responses, threadId) {
   let count = 0;
   const nodes = [];
 
+  let ownerId;
+
   var returnDate = new Date();
 
   document.querySelector(".progress-bar").innerHTML =
@@ -126,10 +128,20 @@ async function refreshThread(responses, threadId) {
     if (count == 1) {
       document.querySelector(".thread-title").textContent = response.title;
       returnDate = date;
+      ownerId = response.account_id;
     }
+
+    let ownerFlag = "";
+
+    if (ownerId) {
+      ownerFlag = "<span style='color: red;'>主</span>";
+    } else {
+      ownerFlag = "";
+    }
+
     node.innerHTML = `<span onclick="document.querySelector('.textarea').textContent += '>>${count}'">${count}：</span><span style="color: green;"><b>${
       response.name
-    }</b></span>：${formatDate(date)} ID: ${response.account_id}`;
+    }</b></span>：${formatDate(date)} ID: ${response.account_id}${ownerFlag}`;
 
     const content = document.createElement("div");
     content.classList.add("content");
@@ -160,12 +172,12 @@ async function refreshThread(responses, threadId) {
       }
     );
 
+    response.content = response.content.replaceAll("\n", " <br> ");
+
     content.innerHTML = response.content.replaceAll(
       /&gt;&gt;(\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*)/g,
       "<a href='#response_$1'><span class='response-link' data-targets='$1'>&gt;&gt;$1</span></a>"
     );
-
-    response.content = response.content.replaceAll("\n", " <br> ");
 
     node.append(content);
 

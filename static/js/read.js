@@ -138,6 +138,10 @@ async function refreshThread(responses, threadId) {
       .replace("\r", " <br> ")
       .replace("\n", " <br> ");
     response.content = response.content.replace(
+      /((?<!href="|href='|src="|src=')(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/gi,
+      "<a href='$1'>$1</a>"
+    );
+    response.content = response.content.replace(
       /&gt;&gt;(\d+(-\d+)?(,\d+(-\d+)?)*)/g,
       (match, group) => {
         const targets = group

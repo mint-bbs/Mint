@@ -150,7 +150,7 @@ async function refreshThread(responses, threadId) {
       "<a href='$1'>$1</a>"
     );
     response.content = response.content.replaceAll(
-      /&gt;&gt;(\d+(-\d+)?(,\d+(-\d+)?)*)/g,
+      /&gt;&gt;(\d{1,4}(-\d{1,4})?(,\d{1,4}(-\d{1,4})?)*)/g,
       (match, group) => {
         const targets = group
           .split(",")
@@ -175,7 +175,7 @@ async function refreshThread(responses, threadId) {
     response.content = response.content.replaceAll("\n", " <br> ");
 
     content.innerHTML = response.content.replaceAll(
-      /&gt;&gt;(\d+(?:-\d+)?(?:,\d+(?:-\d+)?)*)/g,
+      /&gt;&gt;(\d{1,4}(?:-\d{1,4})?(?:,\d{1,4}(?:-\d{1,4})?)*)/g,
       "<a href='#response_$1'><span class='response-link' data-targets='$1'>&gt;&gt;$1</span></a>"
     );
 

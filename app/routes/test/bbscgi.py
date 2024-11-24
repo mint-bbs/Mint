@@ -341,6 +341,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             content=MESSAGE,
             ipaddr=ipaddr,
             board=board,
+            title=subject
             thread=thread,
         )
         for plugin in PluginManager.plugins:

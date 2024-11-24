@@ -272,7 +272,12 @@ async function post(e) {
 document.addEventListener("DOMContentLoaded", async () => {
   const progressBar = document.getElementById("progress");
 
-  document.getElementById("name").value = getCookie("NAME") | "";
+  const name = getCookie("NAME");
+  if (name == null) {
+    document.getElementById("name").value = "";
+  } else {
+    document.getElementById("name").value = getCookie("NAME") | "";
+  }
 
   const response = await fetch(`/api/boards/${board}/threads/${key}`);
   const data = await response.text();

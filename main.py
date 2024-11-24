@@ -2,6 +2,8 @@ import asyncio
 import importlib
 import logging
 import os
+import traceback
+from pathlib import Path
 from contextlib import asynccontextmanager
 
 import socketio
@@ -9,24 +11,68 @@ from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.objects import PluginVersion
 from app.services.database import DatabaseService
 from app.services.meta import MetaDataService
 from app.sioHandler import sio
+from app.plugin_manager import PluginManager
 
 # This is Mint version! Don't change this!
 __mintName__ = "Mint"
 __mintFrontName__ = "MintBBS"
-__mintVersion__ = "0.1.0"
+__mintVersion__ = "0.1.1"
 __mintCodeName__ = "Pierrot"
+__mintPluginVersion__ = PluginVersion.PIERROT
+
+
+def loadPlugins():
+    directory = Path("./plugins/")
+    files = list(directory.glob("*.py"))
+
+    for file in files:
+        module_name = file.stem
+
+        if module_name == "__init__":
+            continue
+
+        try:
+            module = importlib.import_module(f"plugins.{module_name}")
+            meta = getattr(module, "MintPluginMetaData")
+            if not meta:
+                logging.getLogger("uvicorn").info(
+                    f'Plugin file "{module_name}.py" isn\'t Mint Plugin!'
+                )
+            if meta.mintVersion != __mintPluginVersion__:
+                logging.getLogger("uvicorn").info(
+                    f"Plugin {meta.name} (v{meta.pluginVersion}) is not compatible with current Mint version"
+                )
+            PluginManager.plugins.append(module.MintPluginMetaData)
+            logging.getLogger("uvicorn").info(
+                f"Plugin {meta.name} (v{meta.pluginVersion}) was loaded!"
+            )
+        except:
+            traceback.print_exc()
+            continue
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await DatabaseService.connect()
+    logging.getLogger("uvicorn").info("Loading metadata...")
     await MetaDataService.load(name=__mintFrontName__)
     logging.getLogger("uvicorn").info(
         f"Metadata {MetaDataService.metadata.name} (ID: {MetaDataService.metadata.id}) was loaded!"
     )
+
+    # Plugin Loader
+    logging.getLogger("uvicorn").info("Loading plugins...")
+    loadPlugins()
+    logging.getLogger("uvicorn").info(
+        f"{len(PluginManager.plugins)} plugins was loaded!"
+    )
+
+    logging.getLogger("uvicorn").info("Ready!")
+
     yield
     async with asyncio.timeout(60):
         await DatabaseService.pool.close()

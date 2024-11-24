@@ -1,10 +1,14 @@
 import html
 import re
+import socket
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
+from ....plugin_manager import PluginManager
+from ....events import PostEvent
+from ....objects import WriteType
 from ....services.auth import AuthService
 from ....services.board import BoardService
 from ....services.thread import ThreadService
@@ -41,6 +45,11 @@ async def postThread(
             ipaddr = "127.0.0.1"
 
         ipaddr = request.client.host
+
+    try:
+        ipaddr, _, _ = socket.gethostbyaddr(ipaddr)
+    except socket.herror as e:
+        pass
 
     if not chCookie:
         match = re.match(r"#(.*)", model.authKey)
@@ -92,6 +101,27 @@ async def postThread(
         )
 
     timestamp = int(datetime.now().timestamp())
+
+    event = PostEvent(
+        WriteType.WEBAPI_THREADPOST,
+        request=request,
+        title=model.title,
+        name=model.name,
+        accountId=authUser["account_id"],
+        mail=model.authKey,
+        content=model.content,
+        board=board,
+        timestamp=timestamp,
+    )
+    for plugin in PluginManager.plugins:
+        await plugin.pluginClass.onWrite(event)
+        if event.isCancelled():
+            raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+        model.title = event.title
+        model.name = event.name
+        authUser["account_id"] = event.accountId
+        model.content = event.content
+
     newThread = await BoardService.write(
         board.id,
         timestamp=timestamp,

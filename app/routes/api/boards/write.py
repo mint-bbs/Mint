@@ -1,11 +1,13 @@
 import html
 import re
+import socket
 
 import orjson
 from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
-from .... import objects
+from .... import objects, events
+from ....plugin_manager import PluginManager
 from ....services.auth import AuthService
 from ....services.board import BoardService
 from ....services.thread import ThreadService
@@ -42,6 +44,11 @@ async def postThread(
             ipaddr = "127.0.0.1"
 
         ipaddr = request.client.host
+
+    try:
+        ipaddr, _, _ = socket.gethostbyaddr(ipaddr)
+    except socket.herror as e:
+        pass
 
     if not chCookie:
         match = re.match(r"#(.*)", model.authKey)
@@ -95,6 +102,24 @@ async def postThread(
             status_code=413,
             detail=f"本文が指定されたサイズより長いです。短くしてください。({len(model.content)} > {board.message_count})",
         )
+
+    event = events.WriteEvent(
+        objects.WriteType.WEBAPI_THREADWRITE,
+        request=request,
+        name=model.name,
+        accountId=authUser["account_id"],
+        mail=model.authKey,
+        content=model.content,
+        board=board,
+        thread=thread,
+    )
+    for plugin in PluginManager.plugins:
+        await plugin.pluginClass.onWrite(event)
+        if event.isCancelled():
+            raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+        model.name = event.name
+        authUser["account_id"] = event.accountId
+        model.content = event.content
 
     newResponse: objects.Response = await ThreadService.write(
         board.id,

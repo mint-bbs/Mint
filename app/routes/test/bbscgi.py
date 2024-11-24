@@ -1,12 +1,15 @@
 import html
 import re
 import urllib
+import socket
 from datetime import datetime
 
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
-from ...objects import Board, Jinja2SJISTemplates, Response
+from ...plugin_manager import PluginManager
+from ...objects import Board, Jinja2SJISTemplates, Response, WriteType
+from ...events import PostEvent
 from ...services.auth import AuthService
 from ...services.board import BoardService
 from ...services.thread import ThreadService
@@ -43,6 +46,11 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             ipaddr = "127.0.0.1"
 
         ipaddr = request.client.host
+
+    try:
+        ipaddr, _, _ = socket.gethostbyaddr(ipaddr)
+    except socket.herror as e:
+        pass
 
     if not (
         (request.method.lower() != "post")
@@ -229,6 +237,40 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             )
 
         timestamp = int(datetime.now().timestamp())
+
+        event = PostEvent(
+            WriteType.MONAZILLA_THREADPOST,
+            request=request,
+            title=subject,
+            name=FROM,
+            accountId=authUser["account_id"],
+            mail=mail,
+            content=MESSAGE,
+            board=board,
+            timestamp=timestamp,
+        )
+        for plugin in PluginManager.plugins:
+            await plugin.pluginClass.onWrite(event)
+            if event.isCancelled():
+                return templates.TemplateResponse(
+                    request=request,
+                    name="bbscgi_error.html",
+                    context={
+                        "message": event.getCancelMessage(),
+                        "ipaddr": ipaddr,
+                        "bbs": bbs,
+                        "key": key,
+                        "FROM": FROM,
+                        "mail": mail,
+                        "MESSAGE": MESSAGE,
+                    },
+                    headers={"content-type": "text/html; charset=shift_jis"},
+                )
+            subject = event.title
+            FROM = event.name
+            authUser["account_id"] = event.accountId
+            MESSAGE = event.content
+
         newThread = await BoardService.write(
             board.id,
             timestamp=timestamp,
@@ -264,6 +306,38 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
 
         return templateResponse
     else:
+        event = WriteType(
+            WriteType.MONAZILLA_THREADWRITE,
+            request=request,
+            name=FROM,
+            accountId=authUser["account_id"],
+            mail=mail,
+            content=MESSAGE,
+            board=board,
+            thread=thread,
+        )
+        for plugin in PluginManager.plugins:
+            await plugin.pluginClass.onWrite(event)
+            if event.isCancelled():
+                return templates.TemplateResponse(
+                    request=request,
+                    name="bbscgi_error.html",
+                    context={
+                        "message": event.getCancelMessage(),
+                        "ipaddr": ipaddr,
+                        "bbs": bbs,
+                        "key": key,
+                        "FROM": FROM,
+                        "mail": mail,
+                        "MESSAGE": MESSAGE,
+                    },
+                    headers={"content-type": "text/html; charset=shift_jis"},
+                )
+            subject = event.title
+            FROM = event.name
+            authUser["account_id"] = event.accountId
+            MESSAGE = event.content
+
         response: Response = await ThreadService.write(
             board.id,
             thread.id,

@@ -3,7 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from .captchaType import CaptchaType
+from .type import CaptchaType
 
 
 class ChangeableMetaData(BaseModel):

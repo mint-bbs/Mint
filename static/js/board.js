@@ -198,8 +198,12 @@ async function post(e) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("name").value = getCookie("NAME") | "";
-
+  const name = getCookie("NAME");
+  if (name == null) {
+    document.getElementById("name").value = "";
+  } else {
+    document.getElementById("name").value = getCookie("NAME") | "";
+  }
   let response = await fetch(`/api/boards/${board}/threads`);
   let threads = await response.json();
   console.log(threads);

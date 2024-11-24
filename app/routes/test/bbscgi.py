@@ -250,26 +250,27 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             timestamp=timestamp,
         )
         for plugin in PluginManager.plugins:
-            await plugin.pluginClass.onWrite(event)
-            if event.isCancelled():
-                return templates.TemplateResponse(
-                    request=request,
-                    name="bbscgi_error.html",
-                    context={
-                        "message": event.getCancelMessage(),
-                        "ipaddr": ipaddr,
-                        "bbs": bbs,
-                        "key": key,
-                        "FROM": FROM,
-                        "mail": mail,
-                        "MESSAGE": MESSAGE,
-                    },
-                    headers={"content-type": "text/html; charset=shift_jis"},
-                )
-            subject = event.title
-            FROM = event.name
-            authUser["account_id"] = event.accountId
-            MESSAGE = event.content
+            if getattr(plugin.pluginClass, "onPost"):
+                await plugin.pluginClass.onPost(event)
+                if event.isCancelled():
+                    return templates.TemplateResponse(
+                        request=request,
+                        name="bbscgi_error.html",
+                        context={
+                            "message": event.getCancelMessage(),
+                            "ipaddr": ipaddr,
+                            "bbs": bbs,
+                            "key": key,
+                            "FROM": FROM,
+                            "mail": mail,
+                            "MESSAGE": MESSAGE,
+                        },
+                        headers={"content-type": "text/html; charset=shift_jis"},
+                    )
+                subject = event.title
+                FROM = event.name
+                authUser["account_id"] = event.accountId
+                MESSAGE = event.content
 
         newThread = await BoardService.write(
             board.id,
@@ -317,26 +318,27 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             thread=thread,
         )
         for plugin in PluginManager.plugins:
-            await plugin.pluginClass.onWrite(event)
-            if event.isCancelled():
-                return templates.TemplateResponse(
-                    request=request,
-                    name="bbscgi_error.html",
-                    context={
-                        "message": event.getCancelMessage(),
-                        "ipaddr": ipaddr,
-                        "bbs": bbs,
-                        "key": key,
-                        "FROM": FROM,
-                        "mail": mail,
-                        "MESSAGE": MESSAGE,
-                    },
-                    headers={"content-type": "text/html; charset=shift_jis"},
-                )
-            subject = event.title
-            FROM = event.name
-            authUser["account_id"] = event.accountId
-            MESSAGE = event.content
+            if getattr(plugin.pluginClass, "onWrite"):
+                await plugin.pluginClass.onWrite(event)
+                if event.isCancelled():
+                    return templates.TemplateResponse(
+                        request=request,
+                        name="bbscgi_error.html",
+                        context={
+                            "message": event.getCancelMessage(),
+                            "ipaddr": ipaddr,
+                            "bbs": bbs,
+                            "key": key,
+                            "FROM": FROM,
+                            "mail": mail,
+                            "MESSAGE": MESSAGE,
+                        },
+                        headers={"content-type": "text/html; charset=shift_jis"},
+                    )
+                subject = event.title
+                FROM = event.name
+                authUser["account_id"] = event.accountId
+                MESSAGE = event.content
 
         response: Response = await ThreadService.write(
             board.id,

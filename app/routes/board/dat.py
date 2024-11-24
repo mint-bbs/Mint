@@ -33,11 +33,12 @@ async def dat(request: Request, boardName: str, threadId: int):
 
     event = RequestDatEvent(request, thread, responses)
     for plugin in PluginManager.plugins:
-        await plugin.pluginClass.onDatRequest(event)
-        if event.isCancelled():
-            raise HTTPException(status_code=3939, detail=event.getCancelMessage())
-        thread = event.thread
-        responses = event.responses
+        if getattr(plugin.pluginClass, "onDatRequest"):
+            await plugin.pluginClass.onDatRequest(event)
+            if event.isCancelled():
+                raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+            thread = event.thread
+            responses = event.responses
 
     thread.content = thread.content.replace("\n", " <br> ")
     threadDat.append(

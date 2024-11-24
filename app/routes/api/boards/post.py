@@ -114,13 +114,14 @@ async def postThread(
         timestamp=timestamp,
     )
     for plugin in PluginManager.plugins:
-        await plugin.pluginClass.onWrite(event)
-        if event.isCancelled():
-            raise HTTPException(status_code=3939, detail=event.getCancelMessage())
-        model.title = event.title
-        model.name = event.name
-        authUser["account_id"] = event.accountId
-        model.content = event.content
+        if getattr(plugin.pluginClass, "onPost"):
+            await plugin.pluginClass.onPost(event)
+            if event.isCancelled():
+                raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+            model.title = event.title
+            model.name = event.name
+            authUser["account_id"] = event.accountId
+            model.content = event.content
 
     newThread = await BoardService.write(
         board.id,

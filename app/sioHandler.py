@@ -28,6 +28,7 @@ async def connect(sid, environ, auth):
     else:
         client_ip = environ["REMOTE_ADDR"]
 
+    print(environ.get("CF-Connecting-IP"))
     print(client_ip)
 
     if client_ip not in ip_to_sid:

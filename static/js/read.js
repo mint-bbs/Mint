@@ -278,7 +278,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (name == null) {
     document.getElementById("name").value = "";
   } else {
-    document.getElementById("name").value = getCookie("NAME") | "";
+    document.getElementById("name").value = getCookie("NAME");
   }
 
   const response = await fetch(`/api/boards/${board}/threads/${key}`);

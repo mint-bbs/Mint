@@ -47,7 +47,7 @@ async def dat(request: Request, boardName: str, threadId: int):
     )
 
     for response in responses:
-        response.created_at = response.created_at.replace(tz_info=ZoneInfo("Asia/Tokyo"))
+        response.created_at = response.created_at.replace(tzinfo=ZoneInfo("Asia/Tokyo"))
         response.content = response.content.replace("\n", " <br> ")
 
         threadDat.append(

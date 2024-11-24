@@ -41,13 +41,14 @@ async def dat(request: Request, boardName: str, threadId: int):
             thread = event.thread
             responses = event.responses
 
+    thread.created_at = thread.created_at.astimezone(ZoneInfo("Asia/Tokyo"))
     thread.content = thread.content.replace("\n", " <br> ")
     threadDat.append(
         f"{thread.name}<><>{thread.created_at.strftime('%Y/%m/%d')}({weekdays[thread.created_at.weekday()]}) {thread.created_at.strftime('%H:%M:%S')}.{thread.created_at.strftime('%f')[0:3]} ID:{thread.account_id}<> {thread.content} <>{thread.title}"
     )
 
     for response in responses:
-        response.created_at = response.created_at.replace(tzinfo=ZoneInfo("Asia/Tokyo"))
+        response.created_at = response.created_at.astimezone(ZoneInfo("Asia/Tokyo"))
         response.content = response.content.replace("\n", " <br> ")
 
         threadDat.append(

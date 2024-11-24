@@ -19,8 +19,6 @@ async def connect(sid, environ, auth):
     global global_count
     global max_global_count
 
-    print(environ)
-
     if (Cloudflare.isCloudflareIP(environ["REMOTE_ADDR"])) and (
         "HTTP_CF_CONNECTING_IP" in environ
     ):
@@ -49,8 +47,6 @@ async def connect(sid, environ, auth):
 @sio.event
 async def disconnect(sid):
     global global_count
-    global_count -= 1
-
     client_ip = None
     for ip, connected_sid in ip_to_sid.items():
         if connected_sid == sid:
@@ -59,6 +55,9 @@ async def disconnect(sid):
 
     if client_ip:
         del ip_to_sid[client_ip]
+
+    if client_ip not in ip_to_sid:
+        global_count -= 1
 
     await sio.emit(
         "global_count_event",

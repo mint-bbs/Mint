@@ -57,14 +57,16 @@ async def disconnect(sid):
         del ip_to_sid[client_ip]
 
     if client_ip not in ip_to_sid:
-        global_count -= 1
+        if global_count > 0:
+            global_count -= 1
 
     await sio.emit(
         "global_count_event",
         {"count": global_count, "max": max_global_count},
     )
     for room in get_sid_rooms(sid):
-        room_count[room] -= 1
+        if room_count[room] > 0:
+            room_count[room] -= 1
         await sio.emit(
             "count_event",
             {"count": room_count[room], "max": room_max_count[room]},

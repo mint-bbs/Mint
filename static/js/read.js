@@ -134,7 +134,7 @@ async function refreshThread(responses, threadId) {
     let ownerFlag = "";
 
     if (response.account_id == ownerId) {
-      ownerFlag = "<span style='color: red; font-size: small;'>主</span>";
+      ownerFlag = '<span class="owner">主</span>';
     } else {
       ownerFlag = "";
     }

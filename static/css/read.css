@@ -76,3 +76,8 @@ body {
 .powered-by {
   text-align: center;
 }
+
+.owner {
+  color: red;
+  font-size: small;
+}

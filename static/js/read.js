@@ -156,7 +156,10 @@ async function refreshThread(responses, threadId) {
           .split(",")
           .map((part) => {
             if (part.includes("-")) {
-              const [start, end] = part.split("-").map(Number);
+              let [start, end] = part.split("-").map(Number);
+              if (end > 1000) {
+                end = 1000;
+              }
               return Array.from(
                 { length: end - start + 1 },
                 (_, i) => start + i

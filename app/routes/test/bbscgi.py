@@ -361,7 +361,6 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
                         },
                         headers={"content-type": "text/html; charset=shift_jis"},
                     )
-                subject = event.title
                 FROM = event.name
                 authUser["account_id"] = event.accountId
                 MESSAGE = event.content

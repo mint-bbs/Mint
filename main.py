@@ -41,8 +41,8 @@ async def loadPlugins():
             continue
 
         try:
-            plugin = importlib.import_module(f"plugins.{module_name}")
-            meta = getattr(plugin, "MintPluginMetaData", None)
+            module = importlib.import_module(f"plugins.{module_name}")
+            meta = getattr(module, "MintPluginMetaData", None)
             if not meta:
                 logging.getLogger("uvicorn").info(
                     f'Plugin file "{module_name}.py" isn\'t Mint Plugin!'
@@ -54,10 +54,10 @@ async def loadPlugins():
                 )
                 continue
 
-            if getattr(plugin.pluginClass, "onReady", None):
-                await plugin.pluginClass.onReady(ReadyEvent())
+            if getattr(module.MintPluginMetaData.pluginClass, "onReady", None):
+                await module.MintPluginMetaData.pluginClass.onReady(ReadyEvent())
 
-            PluginManager.plugins.append(plugin.MintPluginMetaData)
+            PluginManager.plugins.append(module.MintPluginMetaData)
 
             logging.getLogger("uvicorn").info(
                 f"Plugin {meta.name} (v{meta.pluginVersion}) was loaded!"

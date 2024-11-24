@@ -36,7 +36,7 @@ async def dat(request: Request, boardName: str, threadId: int):
         if getattr(plugin.pluginClass, "onDatRequest", None):
             await plugin.pluginClass.onDatRequest(event)
             if event.isCancelled():
-                raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+                raise HTTPException(status_code=439, detail=event.getCancelMessage())
             thread = event.thread
             responses = event.responses
 

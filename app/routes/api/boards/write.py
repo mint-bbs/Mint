@@ -127,7 +127,7 @@ async def postThread(
         if getattr(plugin.pluginClass, "onWrite", None):
             await plugin.pluginClass.onWrite(event)
             if event.isCancelled():
-                raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+                raise HTTPException(status_code=439, detail=event.getCancelMessage())
             model.name = event.name
             authUser["account_id"] = event.accountId
             model.content = event.content

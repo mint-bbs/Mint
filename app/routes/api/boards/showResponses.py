@@ -29,7 +29,7 @@ async def threadsList(request: Request, boardName: str, threadId: int):
         if getattr(plugin.pluginClass, "onResponsesRequest", None):
             await plugin.pluginClass.onResponsesRequest(event)
             if event.isCancelled():
-                raise HTTPException(status_code=3939, detail=event.getCancelMessage())
+                raise HTTPException(status_code=439, detail=event.getCancelMessage())
             thread = event.thread
             responses = event.responses
 

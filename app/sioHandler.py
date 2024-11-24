@@ -22,11 +22,11 @@ async def connect(sid, environ, auth):
     print(environ)
 
     if (Cloudflare.isCloudflareIP(environ["REMOTE_ADDR"])) and (
-        "CF-Connecting-IP" in environ
+        "HTTP_CF_CONNECTING_IP" in environ
     ):
-        client_ip = environ["CF-Connecting-IP"]
-    elif "X_FORWARDED_FOR" in environ:
-        client_ip = environ["X_FORWARDED_FOR"]
+        client_ip = environ["HTTP_CF_CONNECTING_IP"]
+    elif "HTTP_X_FORWARDED_FOR" in environ:
+        client_ip = environ["HTTP_X_FORWARDED_FOR"]
     else:
         client_ip = environ["REMOTE_ADDR"]
 

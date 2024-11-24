@@ -271,7 +271,6 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             mail=mail,
             content=MESSAGE,
             ipaddr=ipaddr,
-            title=subject,
             board=board,
             timestamp=timestamp,
         )

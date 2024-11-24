@@ -28,6 +28,8 @@ async def connect(sid, environ, auth):
     else:
         client_ip = environ["REMOTE_ADDR"]
 
+    print(client_ip)
+
     if client_ip not in ip_to_sid:
         ip_to_sid[client_ip] = sid
         global_count += 1

@@ -51,7 +51,7 @@ async def dat(request: Request, boardName: str, threadId: int):
         response.content = response.content.replace("\n", " <br> ")
 
         threadDat.append(
-            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>"
+            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H:%M:%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>"
         )
 
     threadDat.append("")

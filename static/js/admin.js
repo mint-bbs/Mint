@@ -59,6 +59,13 @@ async function metaDataMenu() {
               >
                   メインメニュー
               </button>
+
+            <button
+                class="button is-fullwidth is-primary mt-3"
+                onclick="pluginsMenu();"
+            >
+                プラグイン一覧
+            </button>
         `;
 
   document.getElementById("metaData").onsubmit = async (e) => {
@@ -119,6 +126,46 @@ async function metaDataMenu() {
     submit.disabled = false;
     submit.classList.remove("is-loading");
   };
+}
+
+async function pluginsMenu() {
+  const response = await fetch("/api/admin/meta/plugins");
+  const plugins = await response.json();
+
+  console.log(plugins);
+
+  let pluginsElement = "";
+
+  plugins.forEach((plugin) => {
+    pluginsElement += `<li><b>・${plugin.name}</b> <span>(v${plugin.pluginVersion})</span> - ${plugin.description}</li>`;
+  });
+
+  document.querySelector(".td").innerHTML = `
+                <h1 class="title">プラグイン一覧</h1>
+                <p class="head">
+                    導入されているプラグインの一覧を確認することができます。
+                </p>
+      
+                <ul class="plugins">
+                    ${pluginsElement}
+                </ul>
+    
+                  <hr>
+      
+                <button
+                    class="button is-fullwidth is-primary mt-3"
+                    onclick="mainmenu();"
+                >
+                    メインメニュー
+                </button>
+
+                <button
+                    class="button is-fullwidth is-primary mt-3"
+                    onclick="metaDataMenu();"
+                >
+                    メタデータ編集
+                </button>
+          `;
 }
 
 async function deleteBoard(data) {
@@ -272,6 +319,13 @@ async function threads(data) {
             >
                 メタデータ編集
             </button>
+
+        <button
+            class="button is-fullwidth is-primary mt-3"
+            onclick="pluginsMenu();"
+        >
+            プラグイン一覧
+        </button>
       `;
 
   threads.forEach((thread) => {
@@ -368,6 +422,13 @@ async function editBoard(data) {
             >
                 メタデータ編集
             </button>
+
+                <button
+                    class="button is-fullwidth is-primary mt-3"
+                    onclick="pluginsMenu();"
+                >
+                    プラグイン一覧
+                </button>
       `;
 
   document.getElementById("editBoard").onsubmit = async (e) => {
@@ -488,6 +549,13 @@ async function boardMenu(boardId) {
           >
               メタデータ編集
           </button>
+
+            <button
+                class="button is-fullwidth is-primary mt-3"
+                onclick="pluginsMenu();"
+            >
+                プラグイン一覧
+            </button>
     `;
 }
 
@@ -541,6 +609,13 @@ async function createBoard() {
               >
                   メタデータ編集
               </button>
+
+            <button
+                class="button is-fullwidth is-primary mt-3"
+                onclick="pluginsMenu();"
+            >
+                プラグイン一覧
+            </button>
         `;
 
   document.getElementById("createBoard").onsubmit = async (e) => {
@@ -665,6 +740,13 @@ async function boardsMenu() {
           >
               メタデータ編集
           </button>
+
+        <button
+            class="button is-fullwidth is-primary mt-3"
+            onclick="pluginsMenu();"
+        >
+            プラグイン一覧
+        </button>
     `;
 }
 
@@ -704,6 +786,13 @@ async function mainmenu() {
             onclick="metaDataMenu();"
         >
             メタデータ編集
+        </button>
+
+        <button
+            class="button is-fullwidth is-primary mt-3"
+            onclick="pluginsMenu();"
+        >
+            プラグイン一覧
         </button>
   `;
 }

@@ -1,7 +1,7 @@
 from fastapi import Request
 
+from ..objects import Board, Thread, WriteType
 from .base import BaseEvent
-from ..objects import WriteType, Board, Thread
 
 
 class WriteEvent(BaseEvent):
@@ -14,6 +14,7 @@ class WriteEvent(BaseEvent):
         accountId: str,
         mail: str,
         content: str,
+        ipaddr: str,
         board: Board,
         thread: Thread,
     ):
@@ -25,6 +26,7 @@ class WriteEvent(BaseEvent):
         self.mail = mail
         self.content = content
         self.request = request
+        self.ipaddr = ipaddr
         self.board = board
         self.thread = thread
 
@@ -40,6 +42,7 @@ class PostEvent(BaseEvent):
         accountId: str,
         mail: str,
         content: str,
+        ipaddr: str,
         board: Board,
     ):
         super().__init__()
@@ -50,5 +53,6 @@ class PostEvent(BaseEvent):
         self.accountId = accountId
         self.mail = mail
         self.content = content
+        self.ipaddr = ipaddr
         self.request = request
         self.board = board

@@ -12,3 +12,8 @@ class BaseEvent:
 
     def getCancelMessage(self):
         return self.__cancelMessage
+
+
+class NotCancellableBaseEvent:
+    def __init__(self):
+        pass

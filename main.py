@@ -2,20 +2,22 @@ import asyncio
 import importlib
 import logging
 import os
+import sys
 import traceback
-from pathlib import Path
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 import socketio
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.events import ReadyEvent
 from app.objects import PluginVersion
+from app.plugin_manager import PluginManager
 from app.services.database import DatabaseService
 from app.services.meta import MetaDataService
 from app.sioHandler import sio
-from app.plugin_manager import PluginManager
 
 # This is Mint version! Don't change this!
 __mintName__ = "Mint"
@@ -24,8 +26,11 @@ __mintVersion__ = "0.1.1"
 __mintCodeName__ = "Pierrot"
 __mintPluginVersion__ = PluginVersion.PIERROT
 
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
-def loadPlugins():
+
+async def loadPlugins():
     directory = Path("./plugins/")
     files = list(directory.glob("*.py"))
 
@@ -36,17 +41,24 @@ def loadPlugins():
             continue
 
         try:
-            module = importlib.import_module(f"plugins.{module_name}")
-            meta = getattr(module, "MintPluginMetaData")
+            plugin = importlib.import_module(f"plugins.{module_name}")
+            meta = getattr(plugin, "MintPluginMetaData", None)
             if not meta:
                 logging.getLogger("uvicorn").info(
                     f'Plugin file "{module_name}.py" isn\'t Mint Plugin!'
                 )
+                continue
             if meta.mintVersion != __mintPluginVersion__:
                 logging.getLogger("uvicorn").info(
                     f"Plugin {meta.name} (v{meta.pluginVersion}) is not compatible with current Mint version"
                 )
-            PluginManager.plugins.append(module.MintPluginMetaData)
+                continue
+
+            if getattr(plugin.pluginClass, "onReady", None):
+                await plugin.pluginClass.onReady(ReadyEvent())
+
+            PluginManager.plugins.append(plugin.MintPluginMetaData)
+
             logging.getLogger("uvicorn").info(
                 f"Plugin {meta.name} (v{meta.pluginVersion}) was loaded!"
             )
@@ -66,7 +78,7 @@ async def lifespan(app: FastAPI):
 
     # Plugin Loader
     logging.getLogger("uvicorn").info("Loading plugins...")
-    loadPlugins()
+    await loadPlugins()
     logging.getLogger("uvicorn").info(
         f"{len(PluginManager.plugins)} plugins was loaded!"
     )

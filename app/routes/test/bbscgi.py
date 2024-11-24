@@ -1,15 +1,17 @@
+import asyncio
 import html
 import re
-import urllib
 import socket
+import urllib
 from datetime import datetime
 
+import aiodns
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
-from ...plugin_manager import PluginManager
-from ...objects import Board, Jinja2SJISTemplates, Response, WriteType
 from ...events import PostEvent
+from ...objects import Board, Jinja2SJISTemplates, Response, WriteType
+from ...plugin_manager import PluginManager
 from ...services.auth import AuthService
 from ...services.board import BoardService
 from ...services.thread import ThreadService
@@ -48,8 +50,10 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
         ipaddr = request.client.host
 
     try:
-        ipaddr, _, _ = socket.gethostbyaddr(ipaddr)
-    except socket.herror as e:
+        resolver = aiodns.DNSResolver(loop=asyncio.get_event_loop())
+        result = await resolver.gethostbyaddr(ipaddr)
+        ipaddr = result.name
+    except aiodns.error.DNSError as e:
         pass
 
     if not (
@@ -246,11 +250,12 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             accountId=authUser["account_id"],
             mail=mail,
             content=MESSAGE,
+            ipaddr=ipaddr,
             board=board,
             timestamp=timestamp,
         )
         for plugin in PluginManager.plugins:
-            if getattr(plugin.pluginClass, "onPost"):
+            if getattr(plugin.pluginClass, "onPost", None):
                 await plugin.pluginClass.onPost(event)
                 if event.isCancelled():
                     return templates.TemplateResponse(
@@ -314,11 +319,12 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
             accountId=authUser["account_id"],
             mail=mail,
             content=MESSAGE,
+            ipaddr=ipaddr,
             board=board,
             thread=thread,
         )
         for plugin in PluginManager.plugins:
-            if getattr(plugin.pluginClass, "onWrite"):
+            if getattr(plugin.pluginClass, "onWrite", None):
                 await plugin.pluginClass.onWrite(event)
                 if event.isCancelled():
                     return templates.TemplateResponse(

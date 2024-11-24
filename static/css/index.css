@@ -27,3 +27,7 @@
 
   pointer-events: none;
 }
+
+.powered-by {
+  padding-top: 10px;
+}

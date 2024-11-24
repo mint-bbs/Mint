@@ -1,14 +1,15 @@
+import asyncio
 import html
 import re
-import socket
 from datetime import datetime
 
+import aiodns
 from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
-from ....plugin_manager import PluginManager
 from ....events import PostEvent
 from ....objects import WriteType
+from ....plugin_manager import PluginManager
 from ....services.auth import AuthService
 from ....services.board import BoardService
 from ....services.thread import ThreadService
@@ -47,8 +48,10 @@ async def postThread(
         ipaddr = request.client.host
 
     try:
-        ipaddr, _, _ = socket.gethostbyaddr(ipaddr)
-    except socket.herror as e:
+        resolver = aiodns.DNSResolver(loop=asyncio.get_event_loop())
+        result = await resolver.gethostbyaddr(ipaddr)
+        ipaddr = result.name
+    except aiodns.error.DNSError as e:
         pass
 
     if not chCookie:
@@ -90,7 +93,7 @@ async def postThread(
     )
     if model.content == "":
         raise HTTPException(
-            status_code=401,
+            status_code=400,
             detail=f"本文を空欄にすることはできません。",
         )
     model.title = html.escape(model.title).replace("\r", "").replace("\n", "")
@@ -110,11 +113,12 @@ async def postThread(
         accountId=authUser["account_id"],
         mail=model.authKey,
         content=model.content,
+        ipaddr=ipaddr,
         board=board,
         timestamp=timestamp,
     )
     for plugin in PluginManager.plugins:
-        if getattr(plugin.pluginClass, "onPost"):
+        if getattr(plugin.pluginClass, "onPost", None):
             await plugin.pluginClass.onPost(event)
             if event.isCancelled():
                 raise HTTPException(status_code=3939, detail=event.getCancelMessage())

@@ -252,6 +252,7 @@ async function post(e) {
         animate: { in: "fadeIn", out: "fadeOut" },
       });
       submit.disabled = false;
+      submit.classList.remove("is-loading");
     }
   } catch {
     bulmaToast.toast({
@@ -266,6 +267,7 @@ async function post(e) {
       animate: { in: "fadeIn", out: "fadeOut" },
     });
     submit.disabled = false;
+    submit.classList.remove("is-loading");
   }
 }
 

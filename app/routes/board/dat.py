@@ -3,8 +3,8 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import PlainTextResponse
 
+from ...events import DatRequestEvent
 from ...plugin_manager import PluginManager
-from ...events import RequestDatEvent
 from ...services.board import BoardService
 from ...services.response import ResponseService
 from ...services.thread import ThreadService
@@ -31,9 +31,9 @@ async def dat(request: Request, boardName: str, threadId: int):
     responses = await ResponseService.getResponses(thread.id)
     threadDat = []
 
-    event = RequestDatEvent(request, thread, responses)
+    event = DatRequestEvent(request, thread, responses)
     for plugin in PluginManager.plugins:
-        if getattr(plugin.pluginClass, "onDatRequest"):
+        if getattr(plugin.pluginClass, "onDatRequest", None):
             await plugin.pluginClass.onDatRequest(event)
             if event.isCancelled():
                 raise HTTPException(status_code=3939, detail=event.getCancelMessage())

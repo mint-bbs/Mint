@@ -59,3 +59,7 @@ li {
 
   pointer-events: none;
 }
+
+.powered-by {
+  text-align: center;
+}

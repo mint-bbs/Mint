@@ -142,7 +142,10 @@ async def postThread(
     )
 
     response.set_cookie("2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10)
-    response.set_cookie("NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10)
+    if _raw_name != "":
+        response.set_cookie("NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10)
+    else:
+        response.set_cookie("NAME", "", max_age=-1)
 
     backgroundTasks.add_task(
         sio.emit,

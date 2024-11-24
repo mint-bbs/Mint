@@ -388,9 +388,12 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
         templateResponse.set_cookie(
             "2ch_X", chCookie, max_age=60 * 60 * 60 * 24 * 365 * 10
         )
-        templateResponse.set_cookie(
-            "NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10
-        )
+        if _raw_name != "":
+            templateResponse.set_cookie(
+                "NAME", _raw_name, max_age=60 * 60 * 60 * 24 * 365 * 10
+            )
+        else:
+            templateResponse.set_cookie("NAME", "", max_age=-1)
 
         backgroundTasks.add_task(
             sio.emit,

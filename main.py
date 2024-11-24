@@ -7,11 +7,13 @@ import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import httpx
 import socketio
 from fastapi import FastAPI
 from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.cloudflare import Cloudflare
 from app.events import ReadyEvent
 from app.objects import PluginVersion
 from app.plugin_manager import PluginManager
@@ -82,6 +84,11 @@ async def lifespan(app: FastAPI):
     logging.getLogger("uvicorn").info(
         f"{len(PluginManager.plugins)} plugins was loaded!"
     )
+
+    # Cloudflare lol
+    client = httpx.AsyncClient()
+    response = await client.get("https://www.cloudflare.com/ips-v4/")
+    Cloudflare.addressList = response.text.strip().splitlines()
 
     logging.getLogger("uvicorn").info("Ready!")
 

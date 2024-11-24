@@ -1,7 +1,6 @@
 import asyncio
 import html
 import re
-import socket
 import urllib
 from datetime import datetime
 
@@ -9,6 +8,7 @@ import aiodns
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
+from ...cloudflare import Cloudflare
 from ...events import PostEvent
 from ...objects import Board, Jinja2SJISTemplates, Response, WriteType
 from ...plugin_manager import PluginManager
@@ -41,7 +41,11 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
     submit = postDataDict.get("submit", "")
     chCookie = request.cookies.get("2ch_X", None)
 
-    if "X_FORWARDED_FOR" in request.headers:
+    if (Cloudflare.isCloudflareIP(request.client.host)) and (
+        "CF-Connecting-IP" in request.headers
+    ):
+        ipaddr = request.headers["CF-Connecting-IP"]
+    elif "X_FORWARDED_FOR" in request.headers:
         ipaddr = request.headers["X_FORWARDED_FOR"]
     else:
         if not request.client or not request.client.host:
@@ -146,6 +150,22 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
                 name="bbscgi_error.html",
                 context={
                     "message": "スレッドデータが壊れています！",
+                    "ipaddr": ipaddr,
+                    "bbs": bbs,
+                    "key": key,
+                    "FROM": FROM.encode("utf-8").decode("utf-8"),
+                    "mail": mail.encode("utf-8").decode("utf-8"),
+                    "MESSAGE": MESSAGE.encode("utf-8").decode("utf-8"),
+                },
+                headers={"content-type": "text/html; charset=shift_jis"},
+            )
+
+        if thread.count >= 1000:
+            return templates.TemplateResponse(
+                request=request,
+                name="bbscgi_error.html",
+                context={
+                    "message": "もうお腹いっぱい。。。",
                     "ipaddr": ipaddr,
                     "bbs": bbs,
                     "key": key,

@@ -7,6 +7,7 @@ from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, 
 from pydantic import BaseModel
 
 from .... import events, objects
+from ....cloudflare import Cloudflare
 from ....plugin_manager import PluginManager
 from ....services.auth import AuthService
 from ....services.board import BoardService
@@ -37,7 +38,11 @@ async def postThread(
     スレッドを投稿します。
     """
 
-    if "X_FORWARDED_FOR" in request.headers:
+    if (Cloudflare.isCloudflareIP(request.client.host)) and (
+        "CF-Connecting-IP" in request.headers
+    ):
+        ipaddr = request.headers["CF-Connecting-IP"]
+    elif "X_FORWARDED_FOR" in request.headers:
         ipaddr = request.headers["X_FORWARDED_FOR"]
     else:
         if not request.client or not request.client.host:
@@ -73,6 +78,8 @@ async def postThread(
     thread = await ThreadService.getThread(board.id, threadId)
     if not thread:
         raise HTTPException(status_code=404, detail="スレッドが見つかりませんでした。")
+    if thread.count >= 1000:
+        raise HTTPException(status_code=500, detail="レスがいっぱいです。")
 
     _raw_name = model.name
 

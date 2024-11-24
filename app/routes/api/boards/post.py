@@ -7,12 +7,12 @@ import aiodns
 from fastapi import APIRouter, BackgroundTasks, Cookie, HTTPException, Request, Response
 from pydantic import BaseModel
 
+from ....cloudflare import Cloudflare
 from ....events import PostEvent
 from ....objects import WriteType
 from ....plugin_manager import PluginManager
 from ....services.auth import AuthService
 from ....services.board import BoardService
-from ....services.thread import ThreadService
 from ....services.trip import TripService
 from ....sioHandler import sio
 
@@ -39,7 +39,11 @@ async def postThread(
     スレッドを投稿します。
     """
 
-    if "X_FORWARDED_FOR" in request.headers:
+    if (Cloudflare.isCloudflareIP(request.client.host)) and (
+        "CF-Connecting-IP" in request.headers
+    ):
+        ipaddr = request.headers["CF-Connecting-IP"]
+    elif "X_FORWARDED_FOR" in request.headers:
         ipaddr = request.headers["X_FORWARDED_FOR"]
     else:
         if not request.client or not request.client.host:

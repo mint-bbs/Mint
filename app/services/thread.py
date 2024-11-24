@@ -94,6 +94,9 @@ class ThreadService:
         count: int,
         ipaddr: str
     ) -> Response:
+        if count >= 1000:
+            count += 1
+
         row = await DatabaseService.pool.fetchrow(
             "INSERT INTO responses (id, thread_id, board, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
             cls.randomID(5),
@@ -104,6 +107,18 @@ class ThreadService:
             content,
             ipaddr,
         )
+
+        if count >= 1000:
+            await DatabaseService.pool.execute(
+                "INSERT INTO responses (id, thread_id, board, name, account_id, content, ipaddr) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+                cls.randomID(5),
+                threadId,
+                board,
+                "１０００",
+                "１０００",
+                "このスレッドは１０００レスを突破しました。\n次のレスを建ててください。。。",
+                ipaddr,
+            )
 
         asyncio.create_task(
             DatabaseService.pool.execute(

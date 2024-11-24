@@ -8,3 +8,4 @@ bcrypt
 httpx
 passlib
 aiodns
+ipaddress

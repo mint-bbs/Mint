@@ -42,6 +42,7 @@ class PostEvent(BaseEvent):
         accountId: str,
         mail: str,
         content: str,
+        timestamp: int,
         ipaddr: str,
         board: Board,
     ):
@@ -55,4 +56,5 @@ class PostEvent(BaseEvent):
         self.content = content
         self.ipaddr = ipaddr
         self.request = request
+        self.timestamp = timestamp
         self.board = board

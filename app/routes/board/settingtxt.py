@@ -87,7 +87,7 @@ BBS_THREADCAPONLY=
 BBS_THREADMOBILE=
 """
     return PlainTextResponse(
-        setting.encode("shift_jis"),
+        setting.encode("ascii", "xmlcharrefreplace").decode().encode("shift_jis"),
         200,
         headers={"content-type": "text/plain; charset=shift_jis"},
     )

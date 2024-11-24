@@ -19,6 +19,8 @@ async def connect(sid, environ, auth):
     global global_count
     global max_global_count
 
+    print(environ)
+
     if (Cloudflare.isCloudflareIP(environ["REMOTE_ADDR"])) and (
         "CF-Connecting-IP" in environ
     ):
@@ -28,7 +30,6 @@ async def connect(sid, environ, auth):
     else:
         client_ip = environ["REMOTE_ADDR"]
 
-    print(environ.get("CF-Connecting-IP"))
     print(client_ip)
 
     if client_ip not in ip_to_sid:

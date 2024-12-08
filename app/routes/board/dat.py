@@ -1,4 +1,5 @@
 from datetime import datetime
+from zoneinfo import ZoneInfo
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import PlainTextResponse
@@ -40,16 +41,18 @@ async def dat(request: Request, boardName: str, threadId: int):
             thread = event.thread
             responses = event.responses
 
+    thread.created_at = thread.created_at.astimezone(ZoneInfo("Asia/Tokyo"))
     thread.content = thread.content.replace("\n", " <br> ")
     threadDat.append(
-        f"{thread.name}<><>{thread.created_at.strftime('%Y/%m/%d')}({weekdays[thread.created_at.weekday()]}) {thread.created_at.strftime('%H/%M/%S')}.{thread.created_at.strftime('%f')[0:1]} ID:{thread.account_id}<> {thread.content} <>{thread.title}"
+        f"{thread.name}<><>{thread.created_at.strftime('%Y/%m/%d')}({weekdays[thread.created_at.weekday()]}) {thread.created_at.strftime('%H:%M:%S')}.{thread.created_at.strftime('%f')[0:3]} ID:{thread.account_id}<> {thread.content} <>{thread.title}"
     )
 
     for response in responses:
+        response.created_at = response.created_at.astimezone(ZoneInfo("Asia/Tokyo"))
         response.content = response.content.replace("\n", " <br> ")
 
         threadDat.append(
-            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H/%M/%S')}.{response.created_at.strftime('%f')[0:1]} ID:{response.account_id}<> {response.content} <>"
+            f"{response.name}<><>{response.created_at.strftime('%Y/%m/%d')}({weekdays[response.created_at.weekday()]}) {response.created_at.strftime('%H:%M:%S')}.{response.created_at.strftime('%f')[0:3]} ID:{response.account_id}<> {response.content} <>"
         )
 
     threadDat.append("")

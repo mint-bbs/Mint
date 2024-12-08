@@ -9,7 +9,7 @@ from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
 
 from ...cloudflare import Cloudflare
-from ...events import PostEvent
+from ...events import PostEvent, WriteEvent
 from ...objects import Board, Jinja2SJISTemplates, Response, WriteType
 from ...plugin_manager import PluginManager
 from ...services.auth import AuthService
@@ -332,7 +332,7 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
 
         return templateResponse
     else:
-        event = WriteType(
+        event = WriteEvent(
             WriteType.MONAZILLA_THREADWRITE,
             request=request,
             name=FROM,
@@ -361,7 +361,6 @@ async def bbscgi(request: Request, backgroundTasks: BackgroundTasks):
                         },
                         headers={"content-type": "text/html; charset=shift_jis"},
                     )
-                subject = event.title
                 FROM = event.name
                 authUser["account_id"] = event.accountId
                 MESSAGE = event.content

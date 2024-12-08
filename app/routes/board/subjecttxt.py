@@ -24,7 +24,7 @@ async def subjectTXT(boardName: str):
         subject.append(f"{thread.timestamp}.dat<>{thread.title} ({thread.count})")
     subject.append("")
     return PlainTextResponse(
-        "\n".join(subject).encode("shift_jis"),
+        "\n".join(subject).encode("ascii", "xmlcharrefreplace").decode().encode("shift_jis"),
         200,
         headers={"content-type": "text/plain; charset=shift_jis"},
     )

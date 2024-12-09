@@ -5,10 +5,10 @@ from .cloudflare import Cloudflare
 
 sio = socketio.AsyncServer(async_mode="asgi")
 
-globalList = list()
+globalList = []
 maxGlobalCount = 0
-roomList: dict[list] = defaultdict(lambda: list())
-roomMaxCount: dict[int] = defaultdict(lambda: 0)
+roomList: dict[list] = {}
+roomMaxCount: dict[int] = {}
 
 sidToAddr = {}
 
@@ -65,6 +65,8 @@ async def disconnect(sid):
 async def join_room(sid, room):
     await sio.enter_room(sid, room)
     clientAddr = sidToAddr[sid]
+    if not room in roomList:
+        roomList[room] = []
     roomList[room].append(clientAddr)
     if len(set(roomList[room])) > roomMaxCount[room]:
         roomMaxCount[room] = len(set(roomList[room]))

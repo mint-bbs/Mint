@@ -53,7 +53,7 @@ async def disconnect(sid):
         {"count": len(set(globalList)), "max": maxGlobalCount},
     )
     for room in get_sid_rooms(sid):
-        roomList[room].remove(sid)
+        roomList[room].remove(clientAddr)
         await sio.emit(
             "count_event",
             {"count": len(set(roomList[room])), "max": roomMaxCount[room]},

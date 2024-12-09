@@ -52,6 +52,7 @@ async def disconnect(sid):
         "global_count_event",
         {"count": len(set(globalList)), "max": maxGlobalCount},
     )
+    print(roomList)
     for room in get_sid_rooms(sid):
         roomList[room].remove(clientAddr)
         await sio.emit(
@@ -63,13 +64,13 @@ async def disconnect(sid):
 
 @sio.event
 async def join_room(sid, room):
-    global roomList
     await sio.enter_room(sid, room)
     clientAddr = sidToAddr[sid]
     if not room in roomList:
         roomList[room] = []
         roomMaxCount[room] = 0
     roomList[room].append(clientAddr)
+    print(roomList)
     if len(set(roomList[room])) > roomMaxCount[room]:
         roomMaxCount[room] = len(set(roomList[room]))
     await sio.emit(

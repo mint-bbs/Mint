@@ -23,7 +23,7 @@ async def connect(sid, environ, auth):
     ):
         clientAddr = environ["HTTP_CF_CONNECTING_IP"]
     elif "HTTP_X_FORWARDED_FOR" in environ:
-        clientAddr = environ["HTTP_X_FORWARDED_FOR"]
+        clientAddr = environ["HTTP_X_FORWARDED_FOR"].split(",")[0]
     else:
         clientAddr = environ["REMOTE_ADDR"]
 

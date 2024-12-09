@@ -88,7 +88,10 @@ async def lifespan(app: FastAPI):
     # Cloudflare lol
     client = httpx.AsyncClient()
     response = await client.get("https://www.cloudflare.com/ips-v4/")
-    Cloudflare.addressList = response.text.strip().splitlines()
+    Cloudflare.addressListv4 = response.text.strip().splitlines()
+
+    response = await client.get("https://www.cloudflare.com/ips-v6/")
+    Cloudflare.addressListv6 = response.text.strip().splitlines()
 
     logging.getLogger("uvicorn").info("Ready!")
 

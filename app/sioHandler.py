@@ -68,6 +68,7 @@ async def join_room(sid, room):
     clientAddr = sidToAddr[sid]
     if not room in roomList:
         roomList[room] = []
+        roomMaxCount[room] = 0
     roomList[room].append(clientAddr)
     if len(set(roomList[room])) > roomMaxCount[room]:
         roomMaxCount[room] = len(set(roomList[room]))

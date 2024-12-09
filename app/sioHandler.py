@@ -63,6 +63,7 @@ async def disconnect(sid):
 
 @sio.event
 async def join_room(sid, room):
+    global roomList
     await sio.enter_room(sid, room)
     clientAddr = sidToAddr[sid]
     if not room in roomList:

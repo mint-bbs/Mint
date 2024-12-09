@@ -44,7 +44,7 @@ async def disconnect(sid):
     global globalList
     clientAddr = sidToAddr[sid]
 
-    del clientAddr[sid]
+    del sidToAddr[sid]
 
     globalList.remove(clientAddr)
 
